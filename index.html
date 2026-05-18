@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Advanced Trading Gateways | بوابات التجاره المتقدمه</title>
+  <meta name="description" content="Advanced Trading Gateways — FMCG Distribution, Sultanate of Oman" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --gold: #C9A84C;
+      --gold-light: #E8C97A;
+      --gold-dark: #A07830;
+      --black: #0A0A0A;
+      --black-2: #141414;
+      --black-3: #1E1E1E;
+      --black-4: #2A2A2A;
+      --white: #F5F0E8;
+      --text-muted: #8A8070;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: 'Inter', 'Tajawal', sans-serif;
+      line-height: 1.6;
+    }
+    body.rtl { direction: rtl; font-family: 'Tajawal', 'Inter', sans-serif; }
+
+    /* NAV */
+    nav {
+      background: rgba(10,10,10,0.97);
+      border-bottom: 0.5px solid var(--black-4);
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(8px);
+    }
+    .logo-mark { display: flex; align-items: center; gap: 10px; }
+    .logo-icon {
+      width: 38px; height: 38px;
+      border: 1.5px solid var(--gold);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700; color: var(--gold);
+      letter-spacing: 1px; flex-shrink: 0;
+    }
+    .logo-text { font-size: 13px; font-weight: 500; color: var(--white); line-height: 1.3; }
+    .logo-sub { font-size: 10px; color: var(--text-muted); letter-spacing: 1.5px; text-transform: uppercase; }
+    .nav-links { display: flex; gap: 1.5rem; }
+    .nav-links a {
+      font-size: 13px; color: var(--text-muted);
+      text-decoration: none; cursor: pointer; transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--gold); }
+    .nav-right { display: flex; align-items: center; gap: 1rem; }
+    .lang-btn {
+      display: inline-flex; gap: 4px;
+      background: var(--black-3);
+      border: 0.5px solid var(--gold-dark);
+      border-radius: 20px; padding: 4px;
+    }
+    .lang-btn button {
+      padding: 4px 14px; border-radius: 16px; border: none;
+      cursor: pointer; font-size: 12px; font-weight: 500;
+      transition: all 0.2s; background: transparent; color: var(--text-muted);
+      font-family: inherit;
+    }
+    .lang-btn button.active { background: var(--gold); color: var(--black); }
+    .btn-nav {
+      background: var(--gold); color: var(--black); border: none;
+      padding: 7px 18px; font-size: 12px; font-weight: 600;
+      cursor: pointer; transition: background 0.2s; font-family: inherit;
+    }
+    .btn-nav:hover { background: var(--gold-light); }
+
+    /* HERO */
+    .hero {
+      min-height: 540px;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center; padding: 5rem 2rem;
+      position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(201,168,76,0.09) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .hero-tag {
+      font-size: 10px; letter-spacing: 4px; color: var(--gold);
+      text-transform: uppercase; margin-bottom: 1.5rem;
+      border: 0.5px solid var(--gold-dark); padding: 5px 18px;
+      display: inline-block;
+    }
+    .hero h1 {
+      font-size: 42px; font-weight: 300; color: var(--white);
+      line-height: 1.2; margin-bottom: 0.5rem;
+    }
+    .hero h1 span { color: var(--gold); font-weight: 600; }
+    .hero-sub {
+      font-size: 24px; color: var(--text-muted);
+      margin-bottom: 1.5rem; font-weight: 300;
+    }
+    .hero p {
+      font-size: 15px; color: var(--text-muted);
+      max-width: 520px; line-height: 1.8; margin-bottom: 2.5rem;
+    }
+    .hero-cta { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--gold); color: var(--black); border: none;
+      padding: 12px 32px; font-size: 13px; font-weight: 600;
+      cursor: pointer; letter-spacing: 0.5px; text-transform: uppercase;
+      transition: all 0.2s; font-family: inherit;
+    }
+    .btn-primary:hover { background: var(--gold-light); }
+    .btn-outline {
+      background: transparent; color: var(--gold);
+      border: 0.5px solid var(--gold);
+      padding: 12px 32px; font-size: 13px;
+      cursor: pointer; letter-spacing: 0.5px; text-transform: uppercase;
+      transition: all 0.2s; font-family: inherit;
+    }
+    .btn-outline:hover { background: rgba(201,168,76,0.08); }
+
+    /* STATS */
+    .stats {
+      background: var(--black-2);
+      border-top: 0.5px solid var(--black-4);
+      border-bottom: 0.5px solid var(--black-4);
+      display: grid; grid-template-columns: repeat(4, 1fr);
+    }
+    .stat-item {
+      padding: 1.5rem; text-align: center;
+      border-right: 0.5px solid var(--black-4);
+    }
+    .stat-item:last-child { border-right: none; }
+    .stat-num { font-size: 28px; font-weight: 600; color: var(--gold); display: block; }
+    .stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; margin-top: 4px; }
+
+    /* SECTIONS */
+    section { padding: 4.5rem 2rem; }
+    .section-label {
+      font-size: 10px; letter-spacing: 4px; color: var(--gold);
+      text-transform: uppercase; margin-bottom: 0.75rem; display: block;
+    }
+    .section-title { font-size: 28px; font-weight: 300; color: var(--white); margin-bottom: 0.5rem; }
+    .section-title span { color: var(--gold); }
+    .section-sub { font-size: 14px; color: var(--text-muted); line-height: 1.8; max-width: 500px; }
+
+    /* PRODUCTS CAROUSEL */
+    .carousel-section {
+      background: var(--black-3);
+      border-top: 0.5px solid var(--black-4);
+      padding: 3.5rem 0;
+    }
+    .carousel-header { padding: 0 2rem; margin-bottom: 2rem; }
+    .filter-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 1.5rem; }
+    .filter-tab {
+      padding: 5px 14px; font-size: 11px;
+      border: 0.5px solid var(--black-4);
+      color: var(--text-muted); background: transparent;
+      cursor: pointer; letter-spacing: 1px;
+      transition: all 0.2s; text-transform: uppercase; font-family: inherit;
+    }
+    .filter-tab.active, .filter-tab:hover { border-color: var(--gold); color: var(--gold); }
+    .carousel-wrap { position: relative; margin-top: 1.5rem; }
+    .carousel-track-outer { overflow: hidden; padding: 0.5rem 2.5rem; }
+    .carousel-track { display: flex; gap: 16px; transition: transform 0.4s cubic-bezier(0.25,0.46,0.45,0.94); }
+    .product-card {
+      flex: 0 0 210px;
+      background: var(--black-2);
+      border: 0.5px solid var(--black-4);
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    .product-card:hover { border-color: var(--gold-dark); }
+    .product-img { width: 210px; height: 165px; object-fit: cover; display: block; background: var(--black-4); }
+    .product-body { padding: 14px; }
+    .product-cat { font-size: 9px; letter-spacing: 2px; color: var(--gold); text-transform: uppercase; margin-bottom: 5px; }
+    .product-name { font-size: 13px; font-weight: 500; color: var(--white); margin-bottom: 3px; line-height: 1.3; }
+    .product-name-sub { font-size: 11px; color: var(--text-muted); }
+    .carousel-btn {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      background: var(--black-3); border: 0.5px solid var(--gold-dark);
+      color: var(--gold); width: 40px; height: 40px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; z-index: 10; transition: background 0.2s;
+      font-size: 18px;
+    }
+    .carousel-btn:hover { background: var(--black-4); }
+    .carousel-btn.prev { left: 4px; }
+    .carousel-btn.next { right: 4px; }
+    .carousel-dots { display: flex; gap: 6px; justify-content: center; margin-top: 1.5rem; }
+    .dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--black-4); border: 0.5px solid var(--gold-dark);
+      cursor: pointer; transition: background 0.2s;
+    }
+    .dot.active { background: var(--gold); }
+
+    /* ABOUT */
+    .about-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 3rem; align-items: center; max-width: 900px; margin: 0 auto;
+    }
+    .about-visual {
+      background: var(--black-3); border: 0.5px solid var(--black-4);
+      aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+    }
+    .about-visual-inner {
+      width: 120px; height: 120px; border: 1px solid var(--gold);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; color: var(--gold); letter-spacing: 2px;
+      text-align: center; line-height: 1.6; font-weight: 500;
+    }
+    .about-points { margin-top: 1.5rem; }
+    .about-point {
+      display: flex; align-items: flex-start; gap: 10px;
+      margin-bottom: 1rem; font-size: 13px; color: var(--text-muted); line-height: 1.6;
+    }
+    .point-dot { width: 4px; height: 4px; background: var(--gold); margin-top: 8px; flex-shrink: 0; }
+
+    /* SERVICES */
+    .services-bg { background: var(--black-2); }
+    .services-header { text-align: center; max-width: 600px; margin: 0 auto 0; }
+    .services-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 1px; background: var(--black-4); margin-top: 2.5rem;
+    }
+    .service-card { background: var(--black-2); padding: 2rem 1.5rem; transition: background 0.2s; }
+    .service-card:hover { background: var(--black-3); }
+    .service-icon { font-size: 24px; color: var(--gold); margin-bottom: 1rem; }
+    .service-title { font-size: 15px; font-weight: 500; color: var(--white); margin-bottom: 4px; }
+    .service-title-sub { font-size: 12px; color: var(--text-muted); margin-bottom: 0.75rem; }
+    .service-desc { font-size: 12px; color: var(--text-muted); line-height: 1.7; }
+
+    /* CATEGORIES */
+    .categories-bg { background: var(--black); }
+    .cat-grid { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 1.5rem; }
+    .cat-tag {
+      border: 0.5px solid var(--black-4); padding: 8px 16px;
+      font-size: 12px; color: var(--text-muted); transition: all 0.2s;
+    }
+    .cat-tag:hover { border-color: var(--gold-dark); color: var(--gold); }
+
+    /* CONTACT */
+    .contact-bg {
+      background: var(--black-3);
+      border-top: 0.5px solid var(--black-4);
+      border-bottom: 0.5px solid var(--black-4);
+    }
+    .contact-inner {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 3rem; max-width: 900px; margin: 0 auto;
+    }
+    .contact-detail { display: flex; align-items: center; gap: 8px; margin-top: 1rem; font-size: 13px; color: var(--text-muted); }
+    .contact-detail i { color: var(--gold); font-size: 16px; }
+    .contact-form { display: flex; flex-direction: column; gap: 10px; }
+    .contact-form input,
+    .contact-form textarea {
+      background: var(--black-4); border: 0.5px solid #333;
+      color: var(--white); padding: 11px 14px; font-size: 13px;
+      outline: none; transition: border-color 0.2s; resize: none;
+      font-family: inherit;
+    }
+    .contact-form input::placeholder,
+    .contact-form textarea::placeholder { color: var(--text-muted); }
+    .contact-form input:focus,
+    .contact-form textarea:focus { border-color: var(--gold-dark); }
+
+    /* FOOTER */
+    footer {
+      background: var(--black);
+      border-top: 0.5px solid var(--black-4);
+      padding: 2.5rem 2rem; text-align: center;
+    }
+    .footer-logo { font-size: 12px; color: var(--text-muted); letter-spacing: 2px; }
+    .gold-line { width: 40px; height: 1px; background: var(--gold); margin: 1rem auto; opacity: 0.3; }
+    .footer-copy { font-size: 11px; color: #444; }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 28px; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .stat-item:nth-child(2) { border-right: none; }
+      .about-grid { grid-template-columns: 1fr; }
+      .about-visual { display: none; }
+      .services-grid { grid-template-columns: 1fr; }
+      .contact-inner { grid-template-columns: 1fr; }
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body id="body">
+
+<!-- NAV -->
+<nav>
+  <div class="logo-mark">
+    <div class="logo-icon">ATG</div>
+    <div>
+      <div class="logo-text" id="nav-name">Advanced Trading Gateways</div>
+      <div class="logo-sub" id="nav-sub">FMCG Distribution · Oman</div>
+    </div>
+  </div>
+  <div class="nav-links" id="nav-links">
+    <a onclick="goTo('about')" id="nl-1">About</a>
+    <a onclick="goTo('products')" id="nl-2">Products</a>
+    <a onclick="goTo('services')" id="nl-3">Services</a>
+    <a onclick="goTo('contact')" id="nl-4">Contact</a>
+  </div>
+  <div class="nav-right">
+    <div class="lang-btn">
+      <button class="active" id="btn-en" onclick="setLang('en')">EN</button>
+      <button id="btn-ar" onclick="setLang('ar')">AR</button>
+    </div>
+    <button class="btn-nav" id="nav-cta" onclick="goTo('contact')">Get in Touch</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-tag" id="hero-tag">FMCG Distribution · Sultanate of Oman</div>
+  <h1 id="hero-h1">Your Gateway to <span>Premium</span> FMCG Distribution</h1>
+  <div class="hero-sub" id="hero-sub">بوابات التجاره المتقدمه</div>
+  <p id="hero-p">Advanced Trading Gateways connects leading FMCG brands with retailers across Oman, delivering excellence through trusted partnerships and a robust distribution network.</p>
+  <div class="hero-cta">
+    <button class="btn-primary" id="hero-btn1" onclick="goTo('contact')">Partner With Us</button>
+    <button class="btn-outline" id="hero-btn2" onclick="goTo('products')">View Products</button>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat-item"><span class="stat-num">500+</span><div class="stat-label" id="st1">SKUs Distributed</div></div>
+  <div class="stat-item"><span class="stat-num">12+</span><div class="stat-label" id="st2">Brand Partners</div></div>
+  <div class="stat-item"><span class="stat-num">GCC</span><div class="stat-label" id="st3">Market Reach</div></div>
+  <div class="stat-item"><span class="stat-num">24/7</span><div class="stat-label" id="st4">Logistics Support</div></div>
+</div>
+
+<!-- PRODUCTS -->
+<div class="carousel-section" id="products">
+  <div class="carousel-header">
+    <span class="section-label" id="prod-label">Our Portfolio</span>
+    <h2 class="section-title" id="prod-title">Product <span>Categories</span></h2>
+    <p class="section-sub" id="prod-sub">Premium FMCG products distributed across Oman's retail network.</p>
+    <div class="filter-tabs" id="filter-tabs">
+      <button class="filter-tab active" data-cat="all" id="ft0">All</button>
+      <button class="filter-tab" data-cat="food" id="ft1">Food & Bev</button>
+      <button class="filter-tab" data-cat="dairy" id="ft2">Dairy</button>
+      <button class="filter-tab" data-cat="care" id="ft3">Personal Care</button>
+      <button class="filter-tab" data-cat="home" id="ft4">Home Care</button>
+      <button class="filter-tab" data-cat="snacks" id="ft5">Snacks</button>
+    </div>
+  </div>
+  <div class="carousel-wrap">
+    <button class="carousel-btn prev" onclick="slide(-1)" aria-label="Previous">&#8592;</button>
+    <div class="carousel-track-outer">
+      <div class="carousel-track" id="carousel-track"></div>
+    </div>
+    <button class="carousel-btn next" onclick="slide(1)" aria-label="Next">&#8594;</button>
+  </div>
+  <div class="carousel-dots" id="carousel-dots"></div>
+</div>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-grid">
+    <div>
+      <span class="section-label" id="about-label">About Us</span>
+      <h2 class="section-title" id="about-title">Built on <span>Trust</span>, Driven by Excellence</h2>
+      <p class="section-sub" id="about-desc">Advanced Trading Gateways is an Oman-based company specializing in the sale and distribution of fast-moving consumer goods, connecting global brands with local markets.</p>
+      <div class="about-points" id="about-points">
+        <div class="about-point"><div class="point-dot"></div><span>Strong relationships with leading FMCG manufacturers</span></div>
+        <div class="about-point"><div class="point-dot"></div><span>Comprehensive coverage across Oman and GCC</span></div>
+        <div class="about-point"><div class="point-dot"></div><span>End-to-end supply chain management</span></div>
+      </div>
+    </div>
+    <div class="about-visual"><div class="about-visual-inner">ATG<br/>OMAN</div></div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services" class="services-bg">
+  <div class="services-header">
+    <span class="section-label" id="services-label">What We Do</span>
+    <h2 class="section-title" id="services-title">Our <span>Core</span> Services</h2>
+  </div>
+  <div class="services-grid">
+    <div class="service-card"><div class="service-icon"><i class="ti ti-truck-delivery"></i></div><div class="service-title" id="s1t">FMCG Distribution</div><div class="service-title-sub" id="s1s">توزيع المنتجات الاستهلاكية</div><div class="service-desc" id="s1d">Reliable and efficient distribution across Oman's retail and wholesale channels.</div></div>
+    <div class="service-card"><div class="service-icon"><i class="ti ti-building-store"></i></div><div class="service-title" id="s2t">Sales & Trade</div><div class="service-title-sub" id="s2s">المبيعات والتجارة</div><div class="service-desc" id="s2d">Connecting manufacturers with hypermarkets, supermarkets, and independent retailers.</div></div>
+    <div class="service-card"><div class="service-icon"><i class="ti ti-certificate"></i></div><div class="service-title" id="s3t">Brand Representation</div><div class="service-title-sub" id="s3s">تمثيل العلامات التجارية</div><div class="service-desc" id="s3d">Official distributor for international FMCG brands entering the Omani market.</div></div>
+    <div class="service-card"><div class="service-icon"><i class="ti ti-package"></i></div><div class="service-title" id="s4t">Warehousing & Logistics</div><div class="service-title-sub" id="s4s">التخزين واللوجستيات</div><div class="service-desc" id="s4d">Modern warehousing with temperature-controlled facilities and last-mile delivery.</div></div>
+    <div class="service-card"><div class="service-icon"><i class="ti ti-chart-line"></i></div><div class="service-title" id="s5t">Market Intelligence</div><div class="service-title-sub" id="s5s">ذكاء السوق</div><div class="service-desc" id="s5d">Data-driven insights on consumer trends and shelf performance across Oman.</div></div>
+    <div class="service-card"><div class="service-icon"><i class="ti ti-globe"></i></div><div class="service-title" id="s6t">Import & Sourcing</div><div class="service-title-sub" id="s6s">الاستيراد والتوريد</div><div class="service-desc" id="s6d">End-to-end import management including customs clearance and supplier negotiations.</div></div>
+  </div>
+</section>
+
+<!-- CATEGORIES -->
+<section class="categories-bg">
+  <span class="section-label" id="cat-label">Product Categories</span>
+  <h2 class="section-title" id="cat-title">What We <span>Distribute</span></h2>
+  <p class="section-sub" id="cat-desc">Our portfolio spans all key FMCG categories serving the modern Omani consumer.</p>
+  <div class="cat-grid" id="cat-tags"></div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact" class="contact-bg">
+  <div class="contact-inner">
+    <div>
+      <span class="section-label" id="contact-label">Get In Touch</span>
+      <h2 class="section-title" id="contact-title">Let's Build a <span>Partnership</span></h2>
+      <p style="font-size:13px;color:var(--text-muted);line-height:1.8;margin-top:1rem;" id="contact-desc">Whether you are a brand looking for distribution or a retailer seeking product sourcing, we are ready to discuss how ATG can serve your business.</p>
+      <div class="contact-detail"><i class="ti ti-map-pin"></i><span id="c-loc">Muscat, Sultanate of Oman</span></div>
+      <div class="contact-detail"><i class="ti ti-mail"></i><span>info@atg-oman.com</span></div>
+      <div class="contact-detail"><i class="ti ti-phone"></i><span>+968 XXXX XXXX</span></div>
+    </div>
+    <div>
+      <div class="contact-form">
+        <input type="text" id="cf-name" placeholder="Your Name / اسمك" />
+        <input type="text" id="cf-company" placeholder="Company / الشركة" />
+        <input type="email" id="cf-email" placeholder="Email / البريد الإلكتروني" />
+        <textarea rows="4" id="cf-msg" placeholder="Message / الرسالة"></textarea>
+        <button class="btn-primary" id="cf-submit" style="padding:12px;width:100%;">Send Message ↗</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Advanced Trading Gateways · بوابات التجاره المتقدمه</div>
+  <div class="gold-line"></div>
+  <div class="footer-copy">© 2025 ATG Oman. All Rights Reserved.</div>
+</footer>
+
+<script>
+  const products = [
+    {cat:'food', en:'Premium Juices', ar:'عصائر فاخرة', catEn:'Food & Beverages', catAr:'غذاء ومشروبات', img:'https://images.unsplash.com/photo-1534353473418-4cfa0aee3769?w=420&q=75'},
+    {cat:'dairy', en:'Fresh Dairy', ar:'منتجات ألبان طازجة', catEn:'Dairy', catAr:'ألبان', img:'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=420&q=75'},
+    {cat:'care', en:'Personal Care', ar:'العناية الشخصية', catEn:'Personal Care', catAr:'عناية شخصية', img:'https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=420&q=75'},
+    {cat:'food', en:'Bottled Water', ar:'مياه معبأة', catEn:'Food & Beverages', catAr:'غذاء ومشروبات', img:'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=420&q=75'},
+    {cat:'snacks', en:'Snacks & Chips', ar:'وجبات خفيفة', catEn:'Snacks', catAr:'وجبات خفيفة', img:'https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=420&q=75'},
+    {cat:'home', en:'Home Cleaning', ar:'منتجات تنظيف', catEn:'Home Care', catAr:'عناية منزلية', img:'https://images.unsplash.com/photo-1563453392212-326f5e854473?w=420&q=75'},
+    {cat:'food', en:'Cooking Oils', ar:'زيوت طهي', catEn:'Food & Beverages', catAr:'غذاء ومشروبات', img:'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=420&q=75'},
+    {cat:'snacks', en:'Confectionery', ar:'حلويات', catEn:'Snacks', catAr:'حلويات', img:'https://images.unsplash.com/photo-1599599810769-bcde5a160d32?w=420&q=75'},
+    {cat:'care', en:'Hair Care', ar:'العناية بالشعر', catEn:'Personal Care', catAr:'عناية شخصية', img:'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=420&q=75'},
+    {cat:'dairy', en:'Yogurt & Cheese', ar:'زبادي وجبن', catEn:'Dairy', catAr:'ألبان', img:'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=420&q=75'},
+    {cat:'home', en:'Laundry Products', ar:'منتجات الغسيل', catEn:'Home Care', catAr:'عناية منزلية', img:'https://images.unsplash.com/photo-1585814904765-9e7e92a57bc3?w=420&q=75'},
+    {cat:'food', en:'Canned Goods', ar:'معلبات غذائية', catEn:'Food & Beverages', catAr:'غذاء ومشروبات', img:'https://images.unsplash.com/photo-1584568694244-14fbdf83bd30?w=420&q=75'},
+  ];
+
+  const T = {
+    en: {
+      dir:'ltr',
+      'nav-name':'Advanced Trading Gateways','nav-sub':'FMCG Distribution · Oman','nav-cta':'Get in Touch',
+      navLinks:['About','Products','Services','Contact'],
+      'hero-tag':'FMCG Distribution · Sultanate of Oman',
+      heroH1:'Your Gateway to <span>Premium</span> FMCG Distribution',
+      'hero-sub':'بوابات التجاره المتقدمه',
+      'hero-p':"Advanced Trading Gateways connects leading FMCG brands with retailers across Oman, delivering excellence through trusted partnerships and a robust distribution network.",
+      'hero-btn1':'Partner With Us','hero-btn2':'View Products',
+      st1:'SKUs Distributed',st2:'Brand Partners',st3:'Market Reach',st4:'Logistics Support',
+      'prod-label':'Our Portfolio',prodTitle:'Product <span>Categories</span>',
+      'prod-sub':"Premium FMCG products distributed across Oman's retail network.",
+      filterLabels:['All','Food & Bev','Dairy','Personal Care','Home Care','Snacks'],
+      'about-label':'About Us',aboutTitle:'Built on <span>Trust</span>, Driven by Excellence',
+      'about-desc':'Advanced Trading Gateways is an Oman-based company specializing in the sale and distribution of fast-moving consumer goods, connecting global brands with local markets.',
+      aboutPoints:['Strong relationships with leading FMCG manufacturers','Comprehensive coverage across Oman and GCC','End-to-end supply chain management'],
+      'services-label':'What We Do',servicesTitle:'Our <span>Core</span> Services',
+      s1t:'FMCG Distribution',s1s:'توزيع المنتجات الاستهلاكية',s1d:"Reliable and efficient distribution across Oman's retail and wholesale channels.",
+      s2t:'Sales & Trade',s2s:'المبيعات والتجارة',s2d:'Connecting manufacturers with hypermarkets, supermarkets, and independent retailers.',
+      s3t:'Brand Representation',s3s:'تمثيل العلامات التجارية',s3d:'Official distributor for international FMCG brands entering the Omani market.',
+      s4t:'Warehousing & Logistics',s4s:'التخزين واللوجستيات',s4d:'Modern warehousing with temperature-controlled facilities and last-mile delivery.',
+      s5t:'Market Intelligence',s5s:'ذكاء السوق',s5d:"Data-driven insights on consumer trends and shelf performance across Oman.",
+      s6t:'Import & Sourcing',s6s:'الاستيراد والتوريد',s6d:'End-to-end import management including customs clearance and supplier negotiations.',
+      'cat-label':'Product Categories',catTitle:'What We <span>Distribute</span>',
+      'cat-desc':"Our portfolio spans all key FMCG categories serving the modern Omani consumer.",
+      catTags:['Food & Beverages','Dairy Products','Personal Care','Home Care','Confectionery','Frozen Foods','Snacks & Cereals','Baby Care','Health & Wellness','Household Essentials'],
+      'contact-label':'Get In Touch',contactTitle:"Let's Build a <span>Partnership</span>",
+      'contact-desc':"Whether you are a brand or a retailer, we are ready to discuss how ATG can serve your business.",
+      'c-loc':'Muscat, Sultanate of Oman',
+      cfName:'Your Name',cfCompany:'Company',cfEmail:'Email',cfMsg:'Message','cf-submit':'Send Message ↗',
+      nameKey:'en', catKey:'catEn'
+    },
+    ar: {
+      dir:'rtl',
+      'nav-name':'بوابات التجاره المتقدمه','nav-sub':'توزيع المنتجات · عُمان','nav-cta':'تواصل معنا',
+      navLinks:['من نحن','المنتجات','خدماتنا','اتصل بنا'],
+      'hero-tag':'توزيع المنتجات الاستهلاكية · سلطنة عُمان',
+      heroH1:'بوابتك نحو توزيع <span>متميز</span> للمنتجات الاستهلاكية',
+      'hero-sub':'Advanced Trading Gateways',
+      'hero-p':'تربط بوابات التجارة المتقدمة كبرى العلامات التجارية بتجار التجزئة في عُمان من خلال شراكات موثوقة وشبكة توزيع متكاملة.',
+      'hero-btn1':'كن شريكنا','hero-btn2':'استعرض المنتجات',
+      st1:'منتج موزّع',st2:'شريك تجاري',st3:'نطاق السوق',st4:'دعم لوجستي',
+      'prod-label':'محفظتنا',prodTitle:'فئات <span>المنتجات</span>',
+      'prod-sub':'منتجات استهلاكية فاخرة موزّعة عبر شبكة التجزئة في عُمان.',
+      filterLabels:['الكل','غذاء ومشروبات','ألبان','عناية شخصية','عناية منزلية','وجبات خفيفة'],
+      'about-label':'من نحن',aboutTitle:'مبنيّون على <span>الثقة</span>، ندفع نحو التميّز',
+      'about-desc':'بوابات التجارة المتقدمة شركة عُمانية متخصصة في بيع وتوزيع المنتجات الاستهلاكية السريعة الحركة، تربط العلامات التجارية العالمية بالأسواق المحلية.',
+      aboutPoints:['علاقات راسخة مع كبار مصنّعي المنتجات الاستهلاكية','تغطية شاملة في عُمان ودول الخليج','إدارة متكاملة لسلسلة التوريد'],
+      'services-label':'ماذا نقدّم',servicesTitle:'خدماتنا <span>الأساسية</span>',
+      s1t:'توزيع المنتجات',s1s:'FMCG Distribution',s1d:'توزيع موثوق وفعّال عبر قنوات التجزئة والجملة في سلطنة عُمان.',
+      s2t:'المبيعات والتجارة',s2s:'Sales & Trade',s2d:'ربط المصنّعين بالهايبرماركت والسوبرماركت وتجار التجزئة المستقلين.',
+      s3t:'تمثيل العلامات التجارية',s3s:'Brand Representation',s3d:'نمثّل العلامات التجارية الدولية بصفة رسمية في السوق العُمانية.',
+      s4t:'التخزين واللوجستيات',s4s:'Warehousing & Logistics',s4d:'مستودعات حديثة بتكييف حراري وتوصيل متكامل في جميع محافظات سلطنة عُمان.',
+      s5t:'ذكاء السوق',s5s:'Market Intelligence',s5d:'رؤى مستندة إلى البيانات حول اتجاهات المستهلك وأداء الرفوف.',
+      s6t:'الاستيراد والتوريد',s6s:'Import & Sourcing',s6d:'إدارة شاملة للاستيراد تشمل التخليص الجمركي والتفاوض مع الموردين.',
+      'cat-label':'فئات المنتجات',catTitle:'ماذا <span>نوزّع</span>',
+      'cat-desc':'محفظتنا تمتد عبر جميع فئات المنتجات الاستهلاكية الرئيسية.',
+      catTags:['الغذاء والمشروبات','منتجات الألبان','العناية الشخصية','العناية المنزلية','الحلويات','الأغذية المجمدة','الوجبات الخفيفة','رعاية الأطفال','الصحة والعافية','المستلزمات المنزلية'],
+      'contact-label':'تواصل معنا',contactTitle:'لنبني <span>شراكة</span> ناجحة',
+      'contact-desc':'سواء كنت علامة تجارية تبحث عن التوزيع أو تاجرًا يسعى لمصادر منتجات، نحن مستعدون لمناقشة كيف تخدمك ATG.',
+      'c-loc':'مسقط، سلطنة عُمان',
+      cfName:'اسمك',cfCompany:'الشركة',cfEmail:'البريد الإلكتروني',cfMsg:'الرسالة','cf-submit':'إرسال ↗',
+      nameKey:'ar', catKey:'catAr'
+    }
+  };
+
+  let lang = 'en';
+  let currentCat = 'all';
+  let currentOffset = 0;
+  let filtered = [...products];
+
+  function goTo(id) { document.getElementById(id).scrollIntoView({behavior:'smooth'}); }
+
+  function buildCatTags(d) {
+    document.getElementById('cat-tags').innerHTML =
+      d.catTags.map(t => `<div class="cat-tag">${t}</div>`).join('');
+  }
+
+  function buildCarousel() {
+    const d = T[lang];
+    const track = document.getElementById('carousel-track');
+    track.innerHTML = '';
+    filtered.forEach(p => {
+      const name = p[d.nameKey];
+      const sub  = lang === 'en' ? p.ar : p.en;
+      const cat  = p[d.catKey];
+      const card = document.createElement('div');
+      card.className = 'product-card';
+      card.innerHTML = `<img class="product-img" src="${p.img}" alt="${name}" loading="lazy" onerror="this.style.background='#2A2A2A'">
+        <div class="product-body">
+          <div class="product-cat">${cat}</div>
+          <div class="product-name">${name}</div>
+          <div class="product-name-sub">${sub}</div>
+        </div>`;
+      track.appendChild(card);
+    });
+    currentOffset = 0;
+    updateTrack();
+    buildDots();
+  }
+
+  function maxOffset() { return Math.max(0, filtered.length - 4); }
+
+  function updateTrack() {
+    document.getElementById('carousel-track').style.transform = `translateX(-${currentOffset * 226}px)`;
+    document.querySelectorAll('.dot').forEach((d,i) => d.className = 'dot' + (i === currentOffset ? ' active' : ''));
+  }
+
+  function buildDots() {
+    const el = document.getElementById('carousel-dots');
+    el.innerHTML = '';
+    for (let i = 0; i <= maxOffset(); i++) {
+      const d = document.createElement('div');
+      d.className = 'dot' + (i === 0 ? ' active' : '');
+      const idx = i;
+      d.onclick = () => { currentOffset = idx; updateTrack(); };
+      el.appendChild(d);
+    }
+  }
+
+  function slide(dir) {
+    currentOffset = Math.max(0, Math.min(maxOffset(), currentOffset + dir));
+    updateTrack();
+  }
+
+  document.getElementById('filter-tabs').addEventListener('click', e => {
+    const btn = e.target.closest('.filter-tab');
+    if (!btn) return;
+    document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentCat = btn.dataset.cat;
+    filtered = currentCat === 'all' ? [...products] : products.filter(p => p.cat === currentCat);
+    buildCarousel();
+  });
+
+  function setLang(l) {
+    lang = l;
+    const d = T[l];
+    document.documentElement.setAttribute('lang', l);
+    document.documentElement.setAttribute('dir', d.dir);
+    document.body.className = d.dir === 'rtl' ? 'rtl' : '';
+
+    document.getElementById('btn-en').className = l === 'en' ? 'active' : '';
+    document.getElementById('btn-ar').className = l === 'ar' ? 'active' : '';
+
+    const simpleIds = ['nav-name','nav-sub','nav-cta','hero-tag','hero-sub','hero-p',
+      'hero-btn1','hero-btn2','prod-label','prod-sub','about-label','about-desc',
+      'services-label','s1t','s1s','s1d','s2t','s2s','s2d','s3t','s3s','s3d',
+      's4t','s4s','s4d','s5t','s5s','s5d','s6t','s6s','s6d',
+      'cat-label','cat-desc','contact-label','contact-desc','c-loc','cf-submit'];
+    simpleIds.forEach(id => {
+      const el = document.getElementById(id);
+      if (el && d[id] !== undefined) el.textContent = d[id];
+    });
+
+    const htmlIds = ['hero-h1','about-title','services-title','prod-title','cat-title','contact-title'];
+    const htmlKeys = ['heroH1','aboutTitle','servicesTitle','prodTitle','catTitle','contactTitle'];
+    htmlIds.forEach((id, i) => {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = d[htmlKeys[i]];
+    });
+
+    ['st1','st2','st3','st4'].forEach(k => {
+      const el = document.getElementById(k);
+      if (el) el.textContent = d[k];
+    });
+
+    [1,2,3,4].forEach(i => {
+      const el = document.getElementById('nl-'+i);
+      if (el) el.textContent = d.navLinks[i-1];
+    });
+
+    const pts = document.querySelectorAll('#about-points .about-point span');
+    d.aboutPoints.forEach((t, i) => { if (pts[i]) pts[i].textContent = t; });
+
+    const ftabs = document.querySelectorAll('.filter-tab');
+    d.filterLabels.forEach((t, i) => { if (ftabs[i]) ftabs[i].textContent = t; });
+
+    document.getElementById('cf-name').placeholder = d.cfName;
+    document.getElementById('cf-company').placeholder = d.cfCompany;
+    document.getElementById('cf-email').placeholder = d.cfEmail;
+    document.getElementById('cf-msg').placeholder = d.cfMsg;
+
+    buildCatTags(d);
+    buildCarousel();
+  }
+
+  buildCatTags(T.en);
+  buildCarousel();
+</script>
+</body>
+</html>
