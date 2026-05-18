@@ -731,6 +731,23 @@
   }
   hsTicker=setInterval(hsTick,100);
 
+  // TOUCH SWIPE — hero slider
+  let hsTouchX=0;
+  hsTrack.addEventListener('touchstart', e=>{ hsTouchX=e.touches[0].clientX; }, {passive:true});
+  hsTrack.addEventListener('touchend', e=>{
+    const diff = hsTouchX - e.changedTouches[0].clientX;
+    if(Math.abs(diff)>40) hsGo(diff>0?1:-1);
+  }, {passive:true});
+
+  // TOUCH SWIPE — product carousel
+  const carouselOuter = document.querySelector('.carousel-track-outer');
+  let cTouchX=0;
+  carouselOuter.addEventListener('touchstart', e=>{ cTouchX=e.touches[0].clientX; }, {passive:true});
+  carouselOuter.addEventListener('touchend', e=>{
+    const diff = cTouchX - e.changedTouches[0].clientX;
+    if(Math.abs(diff)>40) slide(diff>0?1:-1);
+  }, {passive:true});
+
   buildCatTags(T.en);
   buildCarousel();
 </script>
