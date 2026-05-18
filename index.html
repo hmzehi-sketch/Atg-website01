@@ -81,6 +81,35 @@
     }
     .btn-nav:hover { background: var(--gold-light); }
 
+    /* HERO SLIDER */
+    .hero-slider { position:relative; width:100%; height:460px; overflow:hidden; background:#000; }
+    .hs-track { display:flex; height:100%; transition:transform 0.95s cubic-bezier(0.77,0,0.175,1); }
+    .hs-slide { flex:0 0 100%; height:100%; position:relative; overflow:hidden; }
+    .hs-slide img {
+      width:100%; height:100%; object-fit:cover; object-position:center;
+      filter:brightness(0.52) contrast(1.08) saturate(0.8);
+      transition:transform 7s ease; display:block;
+    }
+    .hs-slide.active img { transform:scale(1.07); }
+    .hs-bottom-fade {
+      position:absolute; bottom:0; left:0; right:0; height:120px;
+      background:linear-gradient(to top, rgba(10,10,10,1), transparent); z-index:2;
+    }
+    .hs-nav {
+      position:absolute; top:50%; transform:translateY(-50%);
+      background:rgba(10,10,10,0.5); border:0.5px solid var(--gold-dark);
+      color:var(--gold); width:40px; height:40px;
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; z-index:10; font-size:17px; transition:background 0.2s;
+    }
+    .hs-nav:hover { background:rgba(10,10,10,0.85); }
+    .hs-nav.l { left:1rem; }
+    .hs-nav.r { right:1rem; }
+    .hs-dots { position:absolute; bottom:1.4rem; left:50%; transform:translateX(-50%); display:flex; gap:7px; z-index:10; }
+    .hs-dot { width:24px; height:2px; background:rgba(255,255,255,0.18); cursor:pointer; transition:all 0.3s; }
+    .hs-dot.active { background:var(--gold); width:38px; }
+    .hs-prog { position:absolute; bottom:0; left:0; height:2px; background:var(--gold); opacity:0.5; z-index:10; }
+
     /* HERO */
     .hero {
       min-height: 540px;
@@ -301,6 +330,16 @@
   </style>
 </head>
 <body id="body">
+
+<!-- HERO SLIDER -->
+<div class="hero-slider" id="hs-wrap">
+  <div class="hs-track" id="hs-track"></div>
+  <button class="hs-nav l" onclick="hsGo(-1)">&#8592;</button>
+  <button class="hs-nav r" onclick="hsGo(1)">&#8594;</button>
+  <div class="hs-bottom-fade"></div>
+  <div class="hs-dots" id="hs-dots"></div>
+  <div class="hs-prog" id="hs-prog" style="width:0%"></div>
+</div>
 
 <!-- NAV -->
 <nav>
@@ -645,6 +684,50 @@
     buildCatTags(d);
     buildCarousel();
   }
+
+  // HERO SLIDER
+  const hsImgs = [
+    { src:'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=1400&q=90', alt:'tomato paste' },
+    { src:'https://i.ibb.co/hJwGrm3J/Chat-GPT-Image-May-18-2026-01-52-06-PM.png', alt:'tuna' },
+    { src:'https://images.unsplash.com/photo-1621939514649-280e2ee25f60?w=1400&q=90', alt:'chips' },
+    { src:'https://images.unsplash.com/photo-1527960471264-932f39eb5846?w=1400&q=90', alt:'soft drink' },
+    { src:'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=1400&q=90', alt:'cooking oil' },
+    { src:'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=1400&q=90', alt:'flour' },
+  ];
+  let hsCur=0, hsPct=0, hsTicker;
+  const HS_DUR=5000;
+  const hsTrack=document.getElementById('hs-track');
+  const hsDots=document.getElementById('hs-dots');
+  const hsProg=document.getElementById('hs-prog');
+
+  hsImgs.forEach((img,i)=>{
+    const s=document.createElement('div');
+    s.className='hs-slide'+(i===0?' active':'');
+    s.id='hs-s'+i;
+    s.innerHTML=`<img src="${img.src}" alt="${img.alt}" loading="${i===0?'eager':'lazy'}">`;
+    hsTrack.appendChild(s);
+    const d=document.createElement('div');
+    d.className='hs-dot'+(i===0?' active':'');
+    d.onclick=()=>hsGoTo(i);
+    hsDots.appendChild(d);
+  });
+
+  function hsGoTo(n){
+    document.getElementById('hs-s'+hsCur).classList.remove('active');
+    hsCur=(n+hsImgs.length)%hsImgs.length;
+    hsTrack.style.transform=`translateX(-${hsCur*100}%)`;
+    document.getElementById('hs-s'+hsCur).classList.add('active');
+    document.querySelectorAll('.hs-dot').forEach((d,i)=>d.className='hs-dot'+(i===hsCur?' active':''));
+    clearInterval(hsTicker); hsPct=0; hsProg.style.width='0%';
+    hsTicker=setInterval(hsTick,100);
+  }
+  function hsGo(d){ hsGoTo(hsCur+d); }
+  function hsTick(){
+    hsPct+=100/(HS_DUR/100);
+    if(hsPct>=100){ hsPct=0; hsGoTo(hsCur+1); return; }
+    hsProg.style.width=hsPct+'%';
+  }
+  hsTicker=setInterval(hsTick,100);
 
   buildCatTags(T.en);
   buildCarousel();
