@@ -331,16 +331,6 @@
 </head>
 <body id="body">
 
-<!-- HERO SLIDER -->
-<div class="hero-slider" id="hs-wrap">
-  <div class="hs-track" id="hs-track"></div>
-  <button class="hs-nav l" onclick="hsGo(-1)">&#8592;</button>
-  <button class="hs-nav r" onclick="hsGo(1)">&#8594;</button>
-  <div class="hs-bottom-fade"></div>
-  <div class="hs-dots" id="hs-dots"></div>
-  <div class="hs-prog" id="hs-prog" style="width:0%"></div>
-</div>
-
 <!-- NAV -->
 <nav>
   <div class="logo-mark">
@@ -450,6 +440,16 @@
   <p class="section-sub" id="cat-desc">Our portfolio spans all key FMCG categories serving the modern Omani consumer.</p>
   <div class="cat-grid" id="cat-tags"></div>
 </section>
+
+<!-- HERO SLIDER -->
+<div class="hero-slider" id="hs-wrap">
+  <div class="hs-track" id="hs-track"></div>
+  <button class="hs-nav l" onclick="hsGo(-1)">&#8592;</button>
+  <button class="hs-nav r" onclick="hsGo(1)">&#8594;</button>
+  <div class="hs-bottom-fade"></div>
+  <div class="hs-dots" id="hs-dots"></div>
+  <div class="hs-prog" id="hs-prog" style="width:0%"></div>
+</div>
 
 <!-- CONTACT -->
 <section id="contact" class="contact-bg">
@@ -687,12 +687,13 @@
 
   // HERO SLIDER
   const hsImgs = [
-    { src:'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=1400&q=90', alt:'tomato paste' },
+    { src:'https://i.ibb.co/MxpXXXkg/Chat-GPT-Image-May-18-2026-01-58-48-PM.png', alt:'tomato paste' },
     { src:'https://i.ibb.co/hJwGrm3J/Chat-GPT-Image-May-18-2026-01-52-06-PM.png', alt:'tuna' },
-    { src:'https://images.unsplash.com/photo-1621939514649-280e2ee25f60?w=1400&q=90', alt:'chips' },
-    { src:'https://images.unsplash.com/photo-1527960471264-932f39eb5846?w=1400&q=90', alt:'soft drink' },
-    { src:'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=1400&q=90', alt:'cooking oil' },
-    { src:'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=1400&q=90', alt:'flour' },
+    { src:'https://i.ibb.co/BHz4JBmJ/4503994a-7772-4982-a7d4-487b8ecb2055.png', alt:'chips' },
+    { src:'https://i.ibb.co/Cs1pCr4R/Chat-GPT-Image-May-18-2026-02-08-01-PM.png', alt:'soft drink' },
+    { src:'https://i.ibb.co/7tKmwFsF/Chat-GPT-Image-May-18-2026-02-11-26-PM.png', alt:'cooking oil' },
+    { src:'https://i.ibb.co/RTF3Jhpg/Chat-GPT-Image-May-18-2026-02-13-52-PM.png', alt:'flour' },
+    { src:'https://i.ibb.co/Q3NR06s5/Chat-GPT-Image-May-18-2026-02-15-29-PM.png', alt:'product 7' },
   ];
   let hsCur=0, hsPct=0, hsTicker;
   const HS_DUR=5000;
