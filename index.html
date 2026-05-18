@@ -394,10 +394,10 @@
     <div class="filter-tabs" id="filter-tabs">
       <button class="filter-tab active" data-cat="all" id="ft0">All</button>
       <button class="filter-tab" data-cat="food" id="ft1">Food & Bev</button>
-      <button class="filter-tab" data-cat="dairy" id="ft2">Dairy</button>
-      <button class="filter-tab" data-cat="care" id="ft3">Personal Care</button>
-      <button class="filter-tab" data-cat="home" id="ft4">Home Care</button>
-      <button class="filter-tab" data-cat="snacks" id="ft5">Snacks</button>
+      <button class="filter-tab" data-cat="snacks" id="ft2">Snacks</button>
+      <button class="filter-tab" data-cat="fish" id="ft3">Canned Fish</button>
+      <button class="filter-tab" data-cat="drinks" id="ft4">Beverages</button>
+      <button class="filter-tab" data-cat="dry" id="ft5">Dry Goods</button>
     </div>
   </div>
   <div class="carousel-wrap">
@@ -483,18 +483,13 @@
 
 <script>
   const products = [
-    {cat:'food', en:'Premium Juices', ar:'عصائر فاخرة', catEn:'Food & Beverages', catAr:'غذاء ومشروبات', img:'https://images.unsplash.com/photo-1534353473418-4cfa0aee3769?w=420&q=75'},
-    {cat:'dairy', en:'Fresh Dairy', ar:'منتجات ألبان طازجة', catEn:'Dairy', catAr:'ألبان', img:'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=420&q=75'},
-    {cat:'care', en:'Personal Care', ar:'العناية الشخصية', catEn:'Personal Care', catAr:'عناية شخصية', img:'https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=420&q=75'},
-    {cat:'food', en:'Bottled Water', ar:'مياه معبأة', catEn:'Food & Beverages', catAr:'غذاء ومشروبات', img:'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=420&q=75'},
-    {cat:'snacks', en:'Snacks & Chips', ar:'وجبات خفيفة', catEn:'Snacks', catAr:'وجبات خفيفة', img:'https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=420&q=75'},
-    {cat:'home', en:'Home Cleaning', ar:'منتجات تنظيف', catEn:'Home Care', catAr:'عناية منزلية', img:'https://images.unsplash.com/photo-1563453392212-326f5e854473?w=420&q=75'},
-    {cat:'food', en:'Cooking Oils', ar:'زيوت طهي', catEn:'Food & Beverages', catAr:'غذاء ومشروبات', img:'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=420&q=75'},
-    {cat:'snacks', en:'Confectionery', ar:'حلويات', catEn:'Snacks', catAr:'حلويات', img:'https://images.unsplash.com/photo-1599599810769-bcde5a160d32?w=420&q=75'},
-    {cat:'care', en:'Hair Care', ar:'العناية بالشعر', catEn:'Personal Care', catAr:'عناية شخصية', img:'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=420&q=75'},
-    {cat:'dairy', en:'Yogurt & Cheese', ar:'زبادي وجبن', catEn:'Dairy', catAr:'ألبان', img:'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=420&q=75'},
-    {cat:'home', en:'Laundry Products', ar:'منتجات الغسيل', catEn:'Home Care', catAr:'عناية منزلية', img:'https://images.unsplash.com/photo-1585814904765-9e7e92a57bc3?w=420&q=75'},
-    {cat:'food', en:'Canned Goods', ar:'معلبات غذائية', catEn:'Food & Beverages', catAr:'غذاء ومشروبات', img:'https://images.unsplash.com/photo-1584568694244-14fbdf83bd30?w=420&q=75'},
+    {cat:'food', en:'Tomato Paste', ar:'رب الطماطم', catEn:'Food & Beverages', catAr:'غذاء ومشروبات', img:'https://i.ibb.co/MxpXXXkg/Chat-GPT-Image-May-18-2026-01-58-48-PM.png'},
+    {cat:'fish', en:'Tuna', ar:'تونة فيليه', catEn:'Canned Fish', catAr:'أسماك معلبة', img:'https://i.ibb.co/hJwGrm3J/Chat-GPT-Image-May-18-2026-01-52-06-PM.png'},
+    {cat:'snacks', en:'Chips', ar:'رقائق البطاطس', catEn:'Snacks', catAr:'وجبات خفيفة', img:'https://i.ibb.co/BHz4JBmJ/4503994a-7772-4982-a7d4-487b8ecb2055.png'},
+    {cat:'drinks', en:'Soft Drinks', ar:'مشروبات غازية', catEn:'Beverages', catAr:'مشروبات', img:'https://i.ibb.co/Cs1pCr4R/Chat-GPT-Image-May-18-2026-02-08-01-PM.png'},
+    {cat:'food', en:'Cooking Oil', ar:'زيت الطهي', catEn:'Food & Beverages', catAr:'غذاء ومشروبات', img:'https://i.ibb.co/7tKmwFsF/Chat-GPT-Image-May-18-2026-02-11-26-PM.png'},
+    {cat:'dry', en:'Wheat Flour', ar:'دقيق القمح', catEn:'Dry Goods', catAr:'بضائع جافة', img:'https://i.ibb.co/RTF3Jhpg/Chat-GPT-Image-May-18-2026-02-13-52-PM.png'},
+    {cat:'food', en:'Product', ar:'منتج', catEn:'Food & Beverages', catAr:'غذاء ومشروبات', img:'https://i.ibb.co/Q3NR06s5/Chat-GPT-Image-May-18-2026-02-15-29-PM.png'},
   ];
 
   const T = {
@@ -510,7 +505,7 @@
       st1:'SKUs Distributed',st2:'Brand Partners',st3:'Market Reach',st4:'Logistics Support',
       'prod-label':'Our Portfolio',prodTitle:'Product <span>Categories</span>',
       'prod-sub':"Premium FMCG products distributed across Oman's retail network.",
-      filterLabels:['All','Food & Bev','Dairy','Personal Care','Home Care','Snacks'],
+      filterLabels:['All','Food & Bev','Snacks','Canned Fish','Beverages','Dry Goods'],
       'about-label':'About Us',aboutTitle:'Built on <span>Trust</span>, Driven by Excellence',
       'about-desc':'Advanced Trading Gateways is an Oman-based company specializing in the sale and distribution of fast-moving consumer goods, connecting global brands with local markets.',
       aboutPoints:['Strong relationships with leading FMCG manufacturers','Comprehensive coverage across Oman and GCC','End-to-end supply chain management'],
@@ -542,7 +537,7 @@
       st1:'منتج موزّع',st2:'شريك تجاري',st3:'نطاق السوق',st4:'دعم لوجستي',
       'prod-label':'محفظتنا',prodTitle:'فئات <span>المنتجات</span>',
       'prod-sub':'منتجات استهلاكية فاخرة موزّعة عبر شبكة التجزئة في عُمان.',
-      filterLabels:['الكل','غذاء ومشروبات','ألبان','عناية شخصية','عناية منزلية','وجبات خفيفة'],
+      filterLabels:['الكل','غذاء ومشروبات','وجبات خفيفة','أسماك معلبة','مشروبات','بضائع جافة'],
       'about-label':'من نحن',aboutTitle:'مبنيّون على <span>الثقة</span>، ندفع نحو التميّز',
       'about-desc':'بوابات التجارة المتقدمة شركة عُمانية متخصصة في بيع وتوزيع المنتجات الاستهلاكية السريعة الحركة، تربط العلامات التجارية العالمية بالأسواق المحلية.',
       aboutPoints:['علاقات راسخة مع كبار مصنّعي المنتجات الاستهلاكية','تغطية شاملة في عُمان ودول الخليج','إدارة متكاملة لسلسلة التوريد'],
