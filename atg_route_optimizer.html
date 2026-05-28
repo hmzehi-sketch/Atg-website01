@@ -1,0 +1,2164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>ATG Muscat Route Optimizer</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#0a0f1e;}
+.wrap{display:flex;flex-direction:column;height:100vh;}
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;background:#1A1A2E;border-bottom:2px solid #C8A84B;flex-shrink:0;}
+.logo-block{display:flex;align-items:center;gap:12px;}
+.logo-box{background:#C8A84B;color:#1A1A2E;font-size:18px;font-weight:700;letter-spacing:1.5px;padding:6px 12px;border-radius:4px;}
+.logo-text{color:white;font-size:11px;line-height:1.5;}
+.logo-text strong{display:block;font-size:14px;color:#C8A84B;letter-spacing:.5px;}
+.hdr-right{text-align:right;}
+.hdr-right span{font-size:11px;color:#8899aa;}
+.algo-badge{display:inline-block;font-size:9px;background:#185FA522;color:#60a5fa;border:1px solid #378ADD55;border-radius:4px;padding:2px 7px;margin-top:3px;}
+.body{display:flex;flex:1;overflow:hidden;}
+/* SIDEBAR */
+.side{width:300px;min-width:300px;display:flex;flex-direction:column;background:#16213E;border-right:1px solid #0d1b35;}
+.import-sec{padding:10px 12px;border-bottom:1px solid #0d1b35;}
+.sec-label{font-size:10px;font-weight:600;color:#C8A84B;letter-spacing:.9px;text-transform:uppercase;margin-bottom:8px;}
+.import-btns{display:flex;gap:6px;}
+.imp-btn{flex:1;padding:8px 4px;background:#0F3460;border:1px dashed #C8A84B55;border-radius:6px;color:#C8A84B;font-size:11px;cursor:pointer;text-align:center;transition:all .15s;font-family:inherit;}
+.imp-btn:hover{background:#C8A84B1a;border-color:#C8A84B;}
+.imp-btn i{display:block;font-size:20px;margin-bottom:3px;}
+.imp-note{font-size:10px;color:#4d5e88;margin-top:6px;line-height:1.5;}
+.tmpl-link{color:#C8A84B;text-decoration:underline;cursor:pointer;}
+.mode-bar{display:flex;gap:5px;padding:8px 10px;border-bottom:1px solid #0d1b35;}
+.m-btn{flex:1;padding:6px 3px;font-size:11px;border-radius:5px;border:1px solid #2a3a5e;background:#0F3460;color:#8899aa;cursor:pointer;transition:all .15s;font-family:inherit;}
+.m-btn:hover:not(.ms):not(.mw):not(.me){background:#1a2a4e;}
+.m-btn.ms{background:#0F6E56;color:#E1F5EE;border-color:#1D9E75;}
+.m-btn.mw{background:#185FA5;color:#E6F1FB;border-color:#378ADD;}
+.m-btn.me{background:#993C1D;color:#FAECE7;border-color:#D85A30;}
+.stops{flex:1;overflow-y:auto;padding:8px;}
+.stops::-webkit-scrollbar{width:4px;}
+.stops::-webkit-scrollbar-track{background:#0F3460;}
+.stops::-webkit-scrollbar-thumb{background:#C8A84B44;border-radius:2px;}
+.s-item{display:flex;align-items:center;gap:7px;padding:7px 9px;border-radius:6px;border:1px solid #2a3a5e;background:#0F3460;margin-bottom:4px;}
+.s-item.ss{border-color:#1D9E75;background:#0a2018;}
+.s-item.se{border-color:#D85A30;background:#220d06;}
+.s-dot{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;}
+.s-dot.ds{background:#1D9E75;color:#E1F5EE;}
+.s-dot.de{background:#D85A30;color:#FAECE7;}
+.s-dot.dw{background:#378ADD;color:#E6F1FB;}
+.s-info{flex:1;min-width:0;}
+.s-name{font-size:11px;font-weight:500;color:#dde4f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.s-coord{font-size:10px;color:#4d5e88;}
+.s-del{background:none;border:none;color:#3d4e77;cursor:pointer;padding:2px;font-size:14px;display:flex;line-height:1;}
+.s-del:hover{color:#E24B4A;}
+.gmap-link{display:inline-flex;align-items:center;gap:3px;font-size:10px;color:#4285F4;text-decoration:none;margin-top:2px;opacity:.8;}
+.gmap-link:hover{opacity:1;text-decoration:underline;}
+/* STATUS */
+.s-item.st-visited{border-color:#8B5CF6;background:#130d1f;}
+.s-item.st-delivered{border-color:#1D9E75;background:#071a10;}
+.s-item.st-failed{border-color:#E24B4A;background:#1a0707;}
+.status-legend{display:flex;gap:6px;padding:6px 12px;border-bottom:1px solid #0d1b35;flex-wrap:wrap;}
+.leg-item{display:flex;align-items:center;gap:4px;font-size:10px;color:#5566aa;}
+.leg-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.summary-row{display:flex;gap:4px;padding:6px 12px;border-bottom:1px solid #0d1b35;}
+.sum-chip{flex:1;text-align:center;padding:4px 2px;border-radius:5px;font-size:10px;font-weight:600;}
+.sum-chip.sc-p{background:#1e2d4a;color:#C8A84B;}
+.sum-chip.sc-v{background:#130d1f;color:#8B5CF6;}
+.sum-chip.sc-d{background:#0a2018;color:#1D9E75;}
+.sum-chip.sc-f{background:#1a0707;color:#E24B4A;}
+/* MAP STATUS POPUP */
+.st-popup{background:#1A1A2E;border:1.5px solid #C8A84B55;border-radius:10px;padding:10px 10px 8px;min-width:180px;box-shadow:0 4px 16px rgba(0,0,0,.6);}
+.st-popup-name{font-size:11px;font-weight:600;color:#dde4f0;margin-bottom:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.st-popup-btns{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
+.st-pb{padding:6px 4px;font-size:11px;font-weight:500;border-radius:6px;border:1px solid transparent;cursor:pointer;font-family:inherit;transition:all .12s;text-align:center;}
+.st-pb:hover{filter:brightness(1.15);}
+.st-pb.pb-pending{background:#1e2d4a;color:#C8A84B;border-color:#C8A84B55;}
+.st-pb.pb-visited{background:#1a0d2e;color:#8B5CF6;border-color:#8B5CF655;}
+.st-pb.pb-delivered{background:#0a2018;color:#1D9E75;border-color:#1D9E7555;}
+.st-pb.pb-failed{background:#1a0707;color:#E24B4A;border-color:#E24B4A55;}
+.st-pb.active{outline:2px solid currentColor;outline-offset:1px;}
+/* leaflet popup override */
+.leaflet-popup-content-wrapper{background:transparent!important;border:none!important;box-shadow:none!important;padding:0!important;}
+.leaflet-popup-content{margin:0!important;}
+.leaflet-popup-tip-container{display:none!important;}
+.empty{text-align:center;padding:24px 14px;color:#3d4e77;font-size:11px;line-height:1.7;}
+.empty i{font-size:28px;display:block;margin-bottom:8px;opacity:.35;}
+.s-foot{padding:10px 12px;border-top:1px solid #0d1b35;}
+.stats-row{display:flex;gap:5px;margin-bottom:8px;}
+.stat{flex:1;background:#0F3460;border:1px solid #2a3a5e;border-radius:6px;padding:6px;text-align:center;}
+.sv{font-size:15px;font-weight:600;color:#C8A84B;}
+.sl{font-size:9px;color:#4d5e88;margin-top:1px;}
+.go-btn{width:100%;padding:10px;background:linear-gradient(135deg,#C8A84B,#8B6E28);color:#1A1A2E;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;}
+.go-btn:hover:not(:disabled){filter:brightness(1.1);}
+.go-btn:disabled{background:#2a3a5e;color:#445599;cursor:not-allowed;}
+.clr-btn{width:100%;margin-top:5px;padding:6px;font-size:10px;background:none;color:#4d5e88;border:1px solid #2a3a5e;border-radius:6px;cursor:pointer;font-family:inherit;}
+.clr-btn:hover{background:#0F3460;color:#8899aa;}
+/* MAP */
+.map-wrap{flex:1;position:relative;}
+#map{width:100%;height:100%;}
+.hint-bar{position:absolute;top:10px;left:50%;transform:translateX(-50%);background:#1A1A2Eee;border:1px solid #C8A84B55;border-radius:20px;padding:5px 16px;font-size:11px;color:#C8A84B;z-index:1000;pointer-events:none;white-space:nowrap;}
+.loading{position:absolute;inset:0;background:#0f1a2ecc;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:2000;gap:12px;}
+.spin{width:30px;height:30px;border:3px solid #2a3a5e;border-top-color:#378ADD;border-radius:50%;animation:sp .8s linear infinite;}
+@keyframes sp{to{transform:rotate(360deg)}}
+.load-txt{font-size:12px;color:#C8A84B;}
+/* LOCATE BUTTON */
+.locate-btn{position:absolute;bottom:24px;right:12px;z-index:1000;background:#1A1A2E;border:1.5px solid #C8A84B88;border-radius:8px;color:#C8A84B;padding:8px 12px;font-size:11px;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s;box-shadow:0 2px 8px rgba(0,0,0,.4);}
+.locate-btn:hover{background:#C8A84B1a;border-color:#C8A84B;}
+.locate-btn.locating{color:#378ADD;border-color:#378ADD88;animation:pulse 1s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+
+/* SUPABASE SYNC & ROUTE PANEL */
+.sb-btn{padding:8px 4px;background:#0d2a1a;border:1px dashed #1D9E7588;border-radius:6px;color:#1D9E75;font-size:11px;cursor:pointer;text-align:center;transition:all .15s;font-family:inherit;flex:1;}
+.sb-btn:hover{background:#1D9E7522;border-color:#1D9E75;}
+.sb-btn i{display:block;font-size:20px;margin-bottom:3px;}
+.sb-status{font-size:10px;padding:4px 8px;margin-top:5px;border-radius:4px;display:none;}
+.sb-status.ok{display:block;background:#0a2018;color:#1D9E75;border:1px solid #1D9E7544;}
+.sb-status.err{display:block;background:#1a0707;color:#E24B4A;border:1px solid #E24B4A44;}
+
+/* ROUTE PANEL */
+.route-panel{padding:8px 12px;border-bottom:1px solid #0d1b35;}
+.route-list{display:flex;flex-direction:column;gap:4px;max-height:120px;overflow-y:auto;margin-top:6px;}
+.route-item{display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:5px;border:1px solid #2a3a5e;background:#0F3460;cursor:pointer;transition:all .15s;}
+.route-item:hover{border-color:#C8A84B88;background:#1a2a4e;}
+.route-item.active{border-color:#C8A84B;background:#1a2a1a;}
+.route-badge{font-size:9px;background:#C8A84B22;color:#C8A84B;padding:2px 6px;border-radius:10px;font-weight:600;white-space:nowrap;}
+.route-name{font-size:11px;color:#dde4f0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.route-count{font-size:10px;color:#4d5e88;white-space:nowrap;}
+
+/* CUSTOMER INFO POPUP */
+.cust-popup{background:#1A1A2E;border:1.5px solid #C8A84B88;border-radius:10px;padding:12px;min-width:220px;max-width:260px;box-shadow:0 4px 20px rgba(0,0,0,.7);}
+.cp-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;}
+.cp-name{font-size:12px;font-weight:700;color:#dde4f0;line-height:1.3;}
+.cp-type{font-size:9px;color:#C8A84B;background:#C8A84B18;padding:2px 6px;border-radius:10px;margin-top:3px;display:inline-block;}
+.cp-row{display:flex;align-items:center;gap:5px;font-size:10px;color:#8899aa;margin-bottom:4px;}
+.cp-row i{font-size:11px;color:#4d5e88;flex-shrink:0;}
+.cp-row span{flex:1;}
+.cp-score{display:flex;align-items:center;gap:4px;margin-top:6px;padding-top:6px;border-top:1px solid #2a3a5e;}
+.cp-score-label{font-size:9px;color:#4d5e88;}
+.cp-stars{color:#C8A84B;font-size:11px;}
+.cp-actions{display:flex;gap:5px;margin-top:8px;}
+.cp-act-btn{flex:1;padding:5px 4px;font-size:10px;font-weight:600;border-radius:5px;border:1px solid transparent;cursor:pointer;font-family:inherit;text-align:center;}
+.cp-act-btn.nav{background:#185FA5;color:#fff;border-color:#378ADD;}
+.cp-act-btn.wa{background:#0a2018;color:#1D9E75;border-color:#1D9E7555;}
+.cp-divider{height:1px;background:#2a3a5e;margin:6px 0;}
+.st-popup-btns-full{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:6px;}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hdr">
+    <div class="logo-block">
+      <div class="logo-box">ATG</div>
+      <div class="logo-text">
+        <strong>Advanced Trading Gateways</strong>
+        FMCG Distribution · Oman
+      </div>
+    </div>
+    <div class="hdr-right">
+      <span>Muscat Delivery Route Optimizer</span><br>
+      <span class="algo-badge">2-opt optimized routing</span>
+    </div>
+  </div>
+  <div class="body">
+    <div class="side">
+      <div class="import-sec">
+        <div class="sec-label">Import Locations</div>
+        <div class="import-btns">
+          <button class="imp-btn" onclick="triggerExcel()">
+            <i class="ti ti-file-spreadsheet"></i>Upload Excel
+          </button>
+          <button class="imp-btn" onclick="dlTemplate()">
+            <i class="ti ti-download"></i>Template
+          </button>
+          <button class="sb-btn" onclick="syncFromSupabase()">
+            <i class="ti ti-database-import"></i>Sync ATG
+          </button>
+        </div>
+        <div class="sb-status" id="sbStatus"></div>
+        <div class="imp-note">
+          Columns: <strong style="color:#8899cc">Name, Latitude, Longitude</strong><br>
+          <span class="tmpl-link" onclick="dlTemplate()">Download sample template →</span>
+        </div>
+        <input type="file" id="xlFile" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleExcel(this)"/>
+      </div>
+      <div class="route-panel">
+        <div class="sec-label">Distribution Routes</div>
+        <div class="route-list" id="routeList">
+          <div style="font-size:10px;color:#3d4e77;text-align:center;padding:8px">Sync ATG data to see routes</div>
+        </div>
+      </div>
+      <div class="mode-bar">
+        <button class="m-btn ms" id="bS" onclick="setMode('start')"><i class="ti ti-flag"></i> Start</button>
+        <button class="m-btn" id="bW" onclick="setMode('waypoint')"><i class="ti ti-map-pin"></i> Add Stop</button>
+        <button class="m-btn" id="bE" onclick="setMode('end')"><i class="ti ti-flag-3"></i> End</button>
+      </div>
+      <div class="status-legend">
+        <div class="leg-item"><div class="leg-dot" style="background:#C8A84B"></div>Pending</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#8B5CF6"></div>Visited</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#1D9E75"></div>Delivered</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#E24B4A"></div>Failed</div>
+      </div>
+      <div class="summary-row" id="summaryRow" style="display:none">
+        <div class="sum-chip sc-p"><span id="sumP">0</span> Pend</div>
+        <div class="sum-chip sc-v"><span id="sumV">0</span> Visit</div>
+        <div class="sum-chip sc-d"><span id="sumD">0</span> Del</div>
+        <div class="sum-chip sc-f"><span id="sumF">0</span> Fail</div>
+      </div>
+      <div class="stops" id="stopsList">
+        <div class="empty"><i class="ti ti-map-pins"></i>Upload an Excel file or click the map to add delivery stops.</div>
+      </div>
+      <div class="s-foot">
+        <div class="stats-row" id="statsRow" style="display:none">
+          <div class="stat"><div class="sv" id="svDist">-</div><div class="sl">km total</div></div>
+          <div class="stat"><div class="sv" id="svTime">-</div><div class="sl">est. time</div></div>
+          <div class="stat"><div class="sv" id="svStops">0</div><div class="sl">stops</div></div>
+        </div>
+        <button class="go-btn" id="goBtn" onclick="calcRoute()" disabled>
+          <i class="ti ti-route"></i> Find Best Route
+        </button>
+        <button class="clr-btn" onclick="exportReport()" id="exportBtn" style="display:none;margin-top:5px;color:#C8A84B;border-color:#C8A84B44;"><i class="ti ti-file-export"></i> Export Report</button>
+        <button class="clr-btn" onclick="clearAll()">Clear all</button>
+      </div>
+    </div>
+    <div class="map-wrap">
+      <div id="map"></div>
+      <div class="hint-bar" id="hintBar">Click map to set start point</div>
+      <button class="locate-btn" id="locateBtn" onclick="locateMe()" title="Use my current location">
+        <i class="ti ti-current-location"></i> My Location
+      </button>
+      <div class="loading" id="loadOv" style="display:none">
+        <div class="spin"></div>
+        <div class="load-txt" id="loadTxt">Calculating...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const S={mode:'start',start:null,end:null,wps:[],routeLayer:null,map:null};
+const ST_COLOR={pending:'#C8A84B',visited:'#8B5CF6',delivered:'#1D9E75',failed:'#E24B4A'};
+const ST_NEXT={pending:'visited',visited:'delivered',delivered:'failed',failed:'pending'};
+
+function mkIcon(color,label,sz,status){
+  sz=sz||28;
+  const bColor=status&&status!=='pending'?ST_COLOR[status]:'white';
+  const bW=status&&status!=='pending'?3:2.5;
+  return L.divIcon({className:'',
+    html:`<div style="background:${color};width:${sz}px;height:${sz}px;border-radius:50%;border:${bW}px solid ${bColor};display:flex;align-items:center;justify-content:center;font-size:${sz<28?9:11}px;font-weight:700;color:white;box-shadow:0 2px 8px rgba(0,0,0,.45)">${label}</div>`,
+    iconSize:[sz,sz],iconAnchor:[sz/2,sz/2]});
+}
+
+function locateMe(){
+  if(!navigator.geolocation){alert('Geolocation is not supported by your browser.');return;}
+  const btn=document.getElementById('locateBtn');
+  btn.classList.add('locating');
+  btn.innerHTML='<i class="ti ti-loader"></i> Locating...';
+  navigator.geolocation.getCurrentPosition(
+    pos=>{
+      const lat=pos.coords.latitude,lng=pos.coords.longitude;
+      btn.classList.remove('locating');
+      btn.innerHTML='<i class="ti ti-current-location"></i> My Location';
+      if(S.mode==='start') setStart(lat,lng,'My Location');
+      else if(S.mode==='end') setEnd(lat,lng,'My Location');
+      else addWp(lat,lng,'My Location');
+      S.map.setView([lat,lng],14);
+      renderList();updateBtn();
+    },
+    err=>{
+      btn.classList.remove('locating');
+      btn.innerHTML='<i class="ti ti-current-location"></i> My Location';
+      const msgs={1:'Location access denied.',2:'Location unavailable.',3:'Request timed out.'};
+      alert(msgs[err.code]||'Could not get your location.');
+    },
+    {enableHighAccuracy:true,timeout:10000,maximumAge:0}
+  );
+}
+
+function initMap(){
+  S.map=L.map('map',{zoomControl:true}).setView([23.5880,58.3829],11);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'\u00a9 OpenStreetMap contributors',maxZoom:19}).addTo(S.map);
+  S.map.on('click',onMapClick);
+}
+
+function onMapClick(e){
+  const {lat,lng}=e.latlng;
+  if(S.mode==='start') setStart(lat,lng,null);
+  else if(S.mode==='end') setEnd(lat,lng,null);
+  else addWp(lat,lng,null);
+  renderList();updateBtn();
+}
+
+function setStart(lat,lng,name){
+  if(S.start) S.map.removeLayer(S.start.marker);
+  const m=L.marker([lat,lng],{icon:mkIcon('#1D9E75','S'),draggable:true}).addTo(S.map);
+  m.on('dragend',ev=>{S.start.lat=ev.target.getLatLng().lat;S.start.lng=ev.target.getLatLng().lng;renderList();});
+  S.start={lat,lng,marker:m,name:name||'Start point'};
+  setMode('waypoint');
+}
+
+function setEnd(lat,lng,name){
+  if(S.end) S.map.removeLayer(S.end.marker);
+  const m=L.marker([lat,lng],{icon:mkIcon('#D85A30','E'),draggable:true}).addTo(S.map);
+  m.on('dragend',ev=>{S.end.lat=ev.target.getLatLng().lat;S.end.lng=ev.target.getLatLng().lng;renderList();});
+  S.end={lat,lng,marker:m,name:name||'End point'};
+}
+
+function addWp(lat,lng,name,status){
+  const idx=S.wps.length+1;
+  const st=status||'pending';
+  const m=L.marker([lat,lng],{icon:mkIcon('#378ADD',idx,26,st),draggable:true}).addTo(S.map);
+  const wp={lat,lng,marker:m,id:Date.now()+Math.random(),name:name||('Stop '+idx),status:st};
+  m.on('dragend',ev=>{wp.lat=ev.target.getLatLng().lat;wp.lng=ev.target.getLatLng().lng;renderList();});
+  attachStatusPopup(m,wp);
+  S.wps.push(wp);
+}
+
+function attachStatusPopup(marker,wp){
+  marker.on('click',function(){
+    // close any open popup first
+    S.map.closePopup();
+    const popupHTML=`<div class="st-popup">
+      <div class="st-popup-name">${esc(wp.name)}</div>
+      <div class="st-popup-btns">
+        <button class="st-pb pb-pending${wp.status==='pending'?' active':''}" onclick="setStatusFromMap(${wp.id},'pending')">\u23F3 Pending</button>
+        <button class="st-pb pb-visited${wp.status==='visited'?' active':''}" onclick="setStatusFromMap(${wp.id},'visited')">\uD83D\uDC41 Visited</button>
+        <button class="st-pb pb-delivered${wp.status==='delivered'?' active':''}" onclick="setStatusFromMap(${wp.id},'delivered')">\u2714 Delivered</button>
+        <button class="st-pb pb-failed${wp.status==='failed'?' active':''}" onclick="setStatusFromMap(${wp.id},'failed')">\u2716 Failed</button>
+      </div>
+    </div>`;
+    L.popup({closeButton:false,className:'status-popup',offset:[0,-14]})
+      .setLatLng([wp.lat,wp.lng])
+      .setContent(popupHTML)
+      .openOn(S.map);
+  });
+}
+
+function setStatusFromMap(id,st){
+  S.map.closePopup();
+  setStatus(id,st);
+}
+
+function setStatus(id,st){
+  const wp=S.wps.find(w=>w.id===id);
+  if(!wp) return;
+  wp.status=st;
+  const idx=S.wps.indexOf(wp)+1;
+  S.map.removeLayer(wp.marker);
+  const m=L.marker([wp.lat,wp.lng],{icon:mkIcon('#378ADD',idx,26,st),draggable:true}).addTo(S.map);
+  m.on('dragend',ev=>{wp.lat=ev.target.getLatLng().lat;wp.lng=ev.target.getLatLng().lng;renderList();});
+  wp.marker=m;
+  attachStatusPopup(m,wp);
+  renderList();
+  updateSummary();
+}
+
+function updateSummary(){
+  const p=S.wps.filter(w=>w.status==='pending').length;
+  const v=S.wps.filter(w=>w.status==='visited').length;
+  const d=S.wps.filter(w=>w.status==='delivered').length;
+  const f=S.wps.filter(w=>w.status==='failed').length;
+  document.getElementById('sumP').textContent=p;
+  document.getElementById('sumV').textContent=v;
+  document.getElementById('sumD').textContent=d;
+  document.getElementById('sumF').textContent=f;
+  document.getElementById('summaryRow').style.display=S.wps.length?'flex':'none';
+}
+
+const modeCfg={
+  start:{id:'bS',cls:'ms',hint:'Click map to set start point'},
+  waypoint:{id:'bW',cls:'mw',hint:'Click map to add a delivery stop — tap a stop marker to update status'},
+  end:{id:'bE',cls:'me',hint:'Click map to set end point'}
+};
+function setMode(m){
+  S.mode=m;
+  document.querySelectorAll('.m-btn').forEach(b=>b.className='m-btn');
+  const c=modeCfg[m];
+  document.getElementById(c.id).classList.add(c.cls);
+  document.getElementById('hintBar').textContent=c.hint;
+}
+
+function removeWp(id){
+  const i=S.wps.findIndex(w=>w.id===id);
+  if(i>=0){S.map.removeLayer(S.wps[i].marker);S.wps.splice(i,1);rebuildWpMarkers(S.wps);renderList();updateBtn();updateSummary();}
+}
+
+function rebuildWpMarkers(list){
+  list.forEach((wp,i)=>{
+    S.map.removeLayer(wp.marker);
+    const m=L.marker([wp.lat,wp.lng],{icon:mkIcon('#378ADD',i+1,26,wp.status||'pending'),draggable:true}).addTo(S.map);
+    m.on('dragend',ev=>{wp.lat=ev.target.getLatLng().lat;wp.lng=ev.target.getLatLng().lng;renderList();});
+    wp.marker=m;
+    attachStatusPopup(m,wp);
+  });
+}
+
+function esc(s){return String(s).replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function gmapLink(lat,lng){return `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;}
+
+function renderList(){
+  const el=document.getElementById('stopsList');
+  if(!S.start&&!S.end&&S.wps.length===0){
+    el.innerHTML='<div class="empty"><i class="ti ti-map-pins"></i>Upload an Excel file or click the map to add delivery stops.</div>';
+    document.getElementById('svStops').textContent=0;
+    document.getElementById('summaryRow').style.display='none';
+    return;
+  }
+  let h='';
+  if(S.start){
+    h+=`<div class="s-item ss">
+      <div class="s-dot ds">S</div>
+      <div class="s-info">
+        <div class="s-name">${esc(S.start.name)}</div>
+        <div class="s-coord">${S.start.lat.toFixed(4)}, ${S.start.lng.toFixed(4)}</div>
+        <a class="gmap-link" href="${gmapLink(S.start.lat,S.start.lng)}" target="_blank" rel="noopener"><i class="ti ti-brand-google-maps" style="font-size:11px"></i>Open in Google Maps</a>
+      </div>
+    </div>`;
+  }
+  S.wps.forEach((wp,i)=>{
+    const st=wp.status||'pending';
+    const stClass=st==='visited'?'st-visited':st==='delivered'?'st-delivered':st==='failed'?'st-failed':'';
+    const stColor=ST_COLOR[st];
+    const stLabel={pending:'Pending',visited:'Visited',delivered:'Delivered',failed:'Failed'}[st];
+    h+=`<div class="s-item ${stClass}">
+      <div class="s-dot dw">${i+1}</div>
+      <div class="s-info">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:4px">
+          <div class="s-name" style="flex:1">${esc(wp.name)}</div>
+          <span style="font-size:10px;font-weight:600;color:${stColor};background:${stColor}18;padding:2px 6px;border-radius:10px;white-space:nowrap">${stLabel}</span>
+        </div>
+        <div class="s-coord">${wp.lat.toFixed(4)}, ${wp.lng.toFixed(4)}</div>
+        <a class="gmap-link" href="${gmapLink(wp.lat,wp.lng)}" target="_blank" rel="noopener"><i class="ti ti-brand-google-maps" style="font-size:11px"></i>Open in Google Maps</a>
+        <div style="font-size:10px;color:#5566aa;margin-top:3px"><i class="ti ti-hand-click" style="font-size:10px"></i> Tap marker on map to change status</div>
+      </div>
+      <button class="s-del" onclick="removeWp(${wp.id})" aria-label="Remove stop"><i class="ti ti-x"></i></button>
+    </div>`;
+  });
+  if(S.end){
+    h+=`<div class="s-item se">
+      <div class="s-dot de">E</div>
+      <div class="s-info">
+        <div class="s-name">${esc(S.end.name)}</div>
+        <div class="s-coord">${S.end.lat.toFixed(4)}, ${S.end.lng.toFixed(4)}</div>
+        <a class="gmap-link" href="${gmapLink(S.end.lat,S.end.lng)}" target="_blank" rel="noopener"><i class="ti ti-brand-google-maps" style="font-size:11px"></i>Open in Google Maps</a>
+      </div>
+    </div>`;
+  }
+  el.innerHTML=h;
+  document.getElementById('svStops').textContent=S.wps.length;
+  updateSummary();
+}
+
+function updateBtn(){
+  document.getElementById('goBtn').disabled=!(S.start&&S.end&&S.wps.length>0);
+}
+
+function triggerExcel(){document.getElementById('xlFile').click();}
+
+function handleExcel(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const wb=XLSX.read(e.target.result,{type:'array'});
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      const rows=XLSX.utils.sheet_to_json(ws,{defval:''});
+      if(!rows.length){alert('No data found in file.');return;}
+      let added=0;
+      rows.forEach(row=>{
+        const getVal=names=>{for(const n of names){const k=Object.keys(row).find(k=>k.toLowerCase().trim()===n);if(k!==undefined&&row[k]!=='')return row[k];}return null;};
+        const lat=parseFloat(getVal(['latitude','lat','y']));
+        const lng=parseFloat(getVal(['longitude','lng','lon','long','x']));
+        const name=getVal(['name','location','address','title','stop','label'])||('Stop '+(S.wps.length+1));
+        const rawSt=(getVal(['status','state'])||'pending').toLowerCase().trim();
+        const status=['visited','delivered','failed'].includes(rawSt)?rawSt:'pending';
+        if(!isNaN(lat)&&!isNaN(lng)&&lat>=-90&&lat<=90&&lng>=-180&&lng<=180){addWp(lat,lng,name,status);added++;}
+      });
+      if(added>0){
+        const all=S.wps.map(p=>[p.lat,p.lng]);
+        if(S.start)all.push([S.start.lat,S.start.lng]);
+        if(S.end)all.push([S.end.lat,S.end.lng]);
+        if(all.length)S.map.fitBounds(L.latLngBounds(all),{padding:[50,50]});
+        renderList();updateBtn();
+        const next=!S.start?'Now set a Start point.':((!S.end)?'Now set an End point.':'Press "Find Best Route"!');
+        alert(added+' stops imported.\n'+next);
+      } else {
+        alert('No valid rows found.\nRequired columns: Name, Latitude, Longitude');
+      }
+    }catch(err){alert('Error reading file: '+err.message);}
+    input.value='';
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function dlTemplate(){
+  const wb=XLSX.utils.book_new();
+  const ws=XLSX.utils.aoa_to_sheet([
+    ['Name','Latitude','Longitude','Status'],
+    ['Lulu Hypermarket Seeb','23.5929','58.1586','pending'],
+    ['Carrefour Muscat City Centre','23.6013','58.5914','pending'],
+    ['Sultan Center Al Khuwair','23.5924','58.3835','pending'],
+    ['Muscat Grand Mall','23.6134','58.5437','pending'],
+    ['Al Araimi Boulevard','23.5762','58.5071','pending'],
+    ['City Centre Qurum','23.5988','58.4102','pending'],
+  ]);
+  ws['!cols']=[{wch:32},{wch:14},{wch:14},{wch:12}];
+  XLSX.utils.book_append_sheet(wb,ws,'Stops');
+  XLSX.writeFile(wb,'ATG_Route_Template.xlsx');
+}
+
+function exportReport(){
+  const rows=[['Stop','Name','Latitude','Longitude','Status']];
+  if(S.start) rows.push(['Start',S.start.name,S.start.lat.toFixed(6),S.start.lng.toFixed(6),'—']);
+  S.wps.forEach((wp,i)=>rows.push([i+1,wp.name,wp.lat.toFixed(6),wp.lng.toFixed(6),wp.status||'pending']));
+  if(S.end) rows.push(['End',S.end.name,S.end.lat.toFixed(6),S.end.lng.toFixed(6),'—']);
+  const wb=XLSX.utils.book_new();
+  const ws=XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols']=[{wch:6},{wch:30},{wch:14},{wch:14},{wch:12}];
+  XLSX.utils.book_append_sheet(wb,ws,'Delivery Report');
+  const d=new Date();
+  XLSX.writeFile(wb,`ATG_Report_${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}.xlsx`);
+}
+
+function hdist(a,b){
+  const R=6371,dL=(b.lat-a.lat)*Math.PI/180,dG=(b.lng-a.lng)*Math.PI/180;
+  const x=Math.sin(dL/2)**2+Math.cos(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*Math.sin(dG/2)**2;
+  return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));
+}
+
+function nnSeed(start,pts){
+  let rem=[...pts],ord=[],cur=start;
+  while(rem.length){
+    let mi=0,md=Infinity;
+    rem.forEach((p,i)=>{const d=hdist(cur,p);if(d<md){md=d;mi=i;}});
+    ord.push(rem[mi]);cur=rem[mi];rem.splice(mi,1);
+  }
+  return ord;
+}
+
+function twoOpt(route){
+  const n=route.length;let improved=true;
+  while(improved){
+    improved=false;
+    for(let i=1;i<n-2;i++){
+      for(let j=i+1;j<n-1;j++){
+        const d0=hdist(route[i-1],route[i])+hdist(route[j],route[j+1]);
+        const d1=hdist(route[i-1],route[j])+hdist(route[i],route[j+1]);
+        if(d1<d0-0.0001){
+          let l=i,r=j;
+          while(l<r){const t=route[l];route[l]=route[r];route[r]=t;l++;r--;}
+          improved=true;
+        }
+      }
+    }
+  }
+  return route;
+}
+
+async function calcRoute(){
+  const ov=document.getElementById('loadOv'),tx=document.getElementById('loadTxt');
+  ov.style.display='flex';
+  if(S.routeLayer){S.map.removeLayer(S.routeLayer);S.routeLayer=null;}
+  try{
+    tx.textContent='Step 1: Nearest-neighbour seed...';
+    await new Promise(r=>setTimeout(r,20));
+    const seed=nnSeed(S.start,S.wps);
+    tx.textContent='Step 2: 2-opt optimisation...';
+    await new Promise(r=>setTimeout(r,20));
+    let route=[S.start,...seed,S.end];
+    route=twoOpt(route);
+    const optimized=route.slice(1,route.length-1);
+    tx.textContent='Step 3: Fetching road route...';
+    const coord=route.map(p=>p.lng+','+p.lat).join(';');
+    const url='https://router.project-osrm.org/route/v1/driving/'+coord+'?overview=full&geometries=geojson';
+    const resp=await fetch(url);
+    const data=await resp.json();
+    if(data.code!=='Ok') throw new Error('Route not found. Verify coordinates are in Oman.');
+    const r=data.routes[0];
+    S.routeLayer=L.geoJSON(r.geometry,{style:{color:'#1a6fc4',weight:5,opacity:.92}}).addTo(S.map);
+    S.map.fitBounds(L.latLngBounds(route.map(p=>[p.lat,p.lng])),{padding:[50,50]});
+    document.getElementById('svDist').textContent=(r.distance/1000).toFixed(1);
+    const mins=Math.round(r.duration/60),h=Math.floor(mins/60),m=mins%60;
+    document.getElementById('svTime').textContent=h>0?(h+'h '+m+'m'):(mins+'m');
+    document.getElementById('statsRow').style.display='flex';
+    document.getElementById('exportBtn').style.display='block';
+    const statusMap={};S.wps.forEach(w=>statusMap[w.id]=w.status);
+    S.wps=optimized.map(wp=>({...wp,status:statusMap[wp.id]||wp.status||'pending'}));
+    rebuildWpMarkers(S.wps);
+    renderList();
+  }catch(err){alert('Route error: '+err.message);}
+  ov.style.display='none';
+}
+
+function clearAll(){
+  if(S.start){S.map.removeLayer(S.start.marker);S.start=null;}
+  if(S.end){S.map.removeLayer(S.end.marker);S.end=null;}
+  S.wps.forEach(wp=>S.map.removeLayer(wp.marker));S.wps=[];
+  if(S.routeLayer){S.map.removeLayer(S.routeLayer);S.routeLayer=null;}
+  S.map.closePopup();
+  document.getElementById('statsRow').style.display='none';
+  document.getElementById('summaryRow').style.display='none';
+  document.getElementById('exportBtn').style.display='none';
+  renderList();updateBtn();setMode('start');
+  document.getElementById('hintBar').textContent='Click map to set start point';
+}
+
+
+// ── SUPABASE CONFIG ──
+const SB_URL = "https://spvkshylftshggunpnoa.supabase.co";
+const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNwdmtzaHlsZnRzaGdndW5wbm9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5NjUwNjYsImV4cCI6MjA5NTU0MTA2Nn0.uRwk5kuXTej6HLQWSmqiQljyzCAL7K7qATz2lHEpZww";
+
+// ذخیره اطلاعات کامل مشتری برای هر wp
+const customerData = {};
+
+// ── SYNC FROM SUPABASE ──
+async function syncFromSupabase() {
+  const st = document.getElementById('sbStatus');
+  st.className = 'sb-status';
+  st.textContent = '⏳ Fetching visits from ATG database...';
+  st.className = 'sb-status ok';
+
+  try {
+    const res = await fetch(SB_URL + '/rest/v1/atg_visits?select=*&lat=neq.&lng=neq.&order=created_at.desc', {
+      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
+    });
+    const visits = await res.json();
+    if (!Array.isArray(visits) || !visits.length) {
+      st.textContent = '⚠️ No visits with GPS found in database.';
+      st.className = 'sb-status err';
+      return;
+    }
+
+    // فیلتر: فقط ردیف‌هایی که lat و lng دارند
+    const valid = visits.filter(v => v.lat && v.lng &&
+      !isNaN(parseFloat(v.lat)) && !isNaN(parseFloat(v.lng)));
+
+    if (!valid.length) {
+      st.textContent = '⚠️ No GPS data found in visits.';
+      st.className = 'sb-status err';
+      return;
+    }
+
+    // گروه‌بندی ۳۰ تایی بر اساس نزدیکی (clustering ساده)
+    const routes = buildRoutes(valid, 30);
+    renderRoutePanel(routes);
+
+    st.textContent = `✅ ${valid.length} locations loaded · ${routes.length} routes built`;
+    st.className = 'sb-status ok';
+
+  } catch(e) {
+    st.textContent = '❌ Connection error: ' + e.message;
+    st.className = 'sb-status err';
+  }
+}
+
+// ── ساخت روت‌ها با greedy clustering ──
+function buildRoutes(visits, maxPerRoute) {
+  const pts = visits.map(v => ({
+    lat: parseFloat(v.lat),
+    lng: parseFloat(v.lng),
+    visit: v
+  }));
+
+  const routes = [];
+  let remaining = [...pts];
+  let routeNum = 1;
+
+  while (remaining.length > 0) {
+    const seed = remaining[0];
+    // مرتب‌سازی بر اساس فاصله از seed
+    remaining.sort((a, b) => hdist(seed, a) - hdist(seed, b));
+    const group = remaining.splice(0, Math.min(maxPerRoute, remaining.length));
+    routes.push({
+      id: routeNum,
+      name: 'Route ' + routeNum,
+      points: group
+    });
+    routeNum++;
+  }
+  return routes;
+}
+
+// ── نمایش Route Panel ──
+let allRoutes = [];
+function renderRoutePanel(routes) {
+  allRoutes = routes;
+  const el = document.getElementById('routeList');
+  el.innerHTML = routes.map((r, i) =>
+    `<div class="route-item" onclick="loadRoute(${i})">
+      <span class="route-badge">R${r.id}</span>
+      <span class="route-name">${r.name}</span>
+      <span class="route-count">${r.points.length} stops</span>
+    </div>`
+  ).join('');
+}
+
+// ── لود کردن یک روت روی نقشه ──
+function loadRoute(idx) {
+  const route = allRoutes[idx];
+  if (!route) return;
+
+  // highlight active route
+  document.querySelectorAll('.route-item').forEach((el, i) => {
+    el.classList.toggle('active', i === idx);
+  });
+
+  // پاک کردن نقاط قبلی
+  S.wps.forEach(wp => S.map.removeLayer(wp.marker));
+  S.wps = [];
+
+  // اضافه کردن نقاط روت
+  route.points.forEach(pt => {
+    const v = pt.visit;
+    const lat = parseFloat(v.lat);
+    const lng = parseFloat(v.lng);
+    const name = v.company || v.name || 'Unknown';
+    addWpWithData(lat, lng, name, v);
+  });
+
+  // fit map
+  if (S.wps.length) {
+    const bounds = L.latLngBounds(S.wps.map(w => [w.lat, w.lng]));
+    S.map.fitBounds(bounds, {padding: [50, 50]});
+  }
+
+  renderList();
+  updateBtn();
+  document.getElementById('sbStatus').textContent =
+    `✅ Route ${route.id} loaded · ${route.points.length} stops`;
+}
+
+// ── addWp با اطلاعات کامل مشتری ──
+function addWpWithData(lat, lng, name, visitData) {
+  const idx = S.wps.length + 1;
+  const st = 'pending';
+  const m = L.marker([lat, lng], {icon: mkIcon('#378ADD', idx, 26, st), draggable: true}).addTo(S.map);
+  const wp = {lat, lng, marker: m, id: Date.now() + Math.random(), name, status: st};
+  m.on('dragend', ev => {wp.lat = ev.target.getLatLng().lat; wp.lng = ev.target.getLatLng().lng; renderList();});
+  // ذخیره اطلاعات مشتری
+  customerData[wp.id] = visitData;
+  attachCustomerPopup(m, wp, visitData);
+  S.wps.push(wp);
+}
+
+// ── Popup اطلاعات مشتری ──
+function attachCustomerPopup(marker, wp, v) {
+  marker.on('click', function() {
+    S.map.closePopup();
+
+    const phone = v.buyer_phone || v.owner_phone || '';
+    const waLink = phone ? `https://wa.me/${phone.replace(/[^0-9]/g,'')}` : '';
+    const navLink = `https://www.google.com/maps/dir/?api=1&destination=${wp.lat},${wp.lng}&travelmode=driving`;
+    const score = v.market_score || 0;
+    const stars = '★'.repeat(score) + '☆'.repeat(Math.max(0, 5 - score));
+
+    const popupHTML = `<div class="cust-popup">
+      <div class="cp-header">
+        <div>
+          <div class="cp-name">${esc(v.company || wp.name)}</div>
+          <span class="cp-type">${esc(v.type || 'FMCG')}</span>
+        </div>
+      </div>
+      ${v.area || v.district ? `<div class="cp-row"><i class="ti ti-map-pin"></i><span>${esc(v.area || v.district || '')}</span></div>` : ''}
+      ${v.owner_name ? `<div class="cp-row"><i class="ti ti-user"></i><span>${esc(v.owner_name)}</span></div>` : ''}
+      ${v.buyer_name ? `<div class="cp-row"><i class="ti ti-briefcase"></i><span>${esc(v.buyer_name)} (Buyer)</span></div>` : ''}
+      ${phone ? `<div class="cp-row"><i class="ti ti-phone"></i><span dir="ltr">${esc(phone)}</span></div>` : ''}
+      ${v.volume ? `<div class="cp-row"><i class="ti ti-currency-dollar"></i><span>${esc(v.volume)}/mo</span></div>` : ''}
+      ${v.delivery ? `<div class="cp-row"><i class="ti ti-truck"></i><span>Current delivery: ${esc(v.delivery)}</span></div>` : ''}
+      ${v.next_step ? `<div class="cp-row"><i class="ti ti-arrow-right"></i><span style="color:#C8A84B">${esc(v.next_step)}</span></div>` : ''}
+      ${score ? `<div class="cp-score"><span class="cp-score-label">Score:</span><span class="cp-stars">${stars}</span><span style="font-size:10px;color:#8899aa;margin-right:4px">${score}/5</span></div>` : ''}
+      <div class="cp-divider"></div>
+      <div style="font-size:10px;color:#5566aa;margin-bottom:6px">Update Status:</div>
+      <div class="st-popup-btns-full">
+        <button class="st-pb pb-pending${wp.status==='pending'?' active':''}" onclick="setStatusFromMap(${wp.id},'pending')">⏳ Pending</button>
+        <button class="st-pb pb-visited${wp.status==='visited'?' active':''}" onclick="setStatusFromMap(${wp.id},'visited')">👁 Visited</button>
+        <button class="st-pb pb-delivered${wp.status==='delivered'?' active':''}" onclick="setStatusFromMap(${wp.id},'delivered')">✔ Delivered</button>
+        <button class="st-pb pb-failed${wp.status==='failed'?' active':''}" onclick="setStatusFromMap(${wp.id},'failed')">✖ Failed</button>
+      </div>
+      <div class="cp-actions">
+        <a class="cp-act-btn nav" href="${navLink}" target="_blank">🧭 Navigate</a>
+        ${waLink ? `<a class="cp-act-btn wa" href="${waLink}" target="_blank">💬 WhatsApp</a>` : ''}
+      </div>
+    </div>`;
+
+    L.popup({closeButton: false, className: 'status-popup', offset: [0, -14]})
+      .setLatLng([wp.lat, wp.lng])
+      .setContent(popupHTML)
+      .openOn(S.map);
+  });
+}
+
+window.addEventListener('load', initMap);
+</script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#0a0f1e;}
+.wrap{display:flex;flex-direction:column;height:100vh;}
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;background:#1A1A2E;border-bottom:2px solid #C8A84B;flex-shrink:0;}
+.logo-block{display:flex;align-items:center;gap:12px;}
+.logo-box{background:#C8A84B;color:#1A1A2E;font-size:18px;font-weight:700;letter-spacing:1.5px;padding:6px 12px;border-radius:4px;}
+.logo-text{color:white;font-size:11px;line-height:1.5;}
+.logo-text strong{display:block;font-size:14px;color:#C8A84B;letter-spacing:.5px;}
+.hdr-right{text-align:right;}
+.hdr-right span{font-size:11px;color:#8899aa;}
+.algo-badge{display:inline-block;font-size:9px;background:#185FA522;color:#60a5fa;border:1px solid #378ADD55;border-radius:4px;padding:2px 7px;margin-top:3px;}
+.body{display:flex;flex:1;overflow:hidden;}
+/* SIDEBAR */
+.side{width:300px;min-width:300px;display:flex;flex-direction:column;background:#16213E;border-right:1px solid #0d1b35;}
+.import-sec{padding:10px 12px;border-bottom:1px solid #0d1b35;}
+.sec-label{font-size:10px;font-weight:600;color:#C8A84B;letter-spacing:.9px;text-transform:uppercase;margin-bottom:8px;}
+.import-btns{display:flex;gap:6px;}
+.imp-btn{flex:1;padding:8px 4px;background:#0F3460;border:1px dashed #C8A84B55;border-radius:6px;color:#C8A84B;font-size:11px;cursor:pointer;text-align:center;transition:all .15s;font-family:inherit;}
+.imp-btn:hover{background:#C8A84B1a;border-color:#C8A84B;}
+.imp-btn i{display:block;font-size:20px;margin-bottom:3px;}
+.imp-note{font-size:10px;color:#4d5e88;margin-top:6px;line-height:1.5;}
+.tmpl-link{color:#C8A84B;text-decoration:underline;cursor:pointer;}
+.mode-bar{display:flex;gap:5px;padding:8px 10px;border-bottom:1px solid #0d1b35;}
+.m-btn{flex:1;padding:6px 3px;font-size:11px;border-radius:5px;border:1px solid #2a3a5e;background:#0F3460;color:#8899aa;cursor:pointer;transition:all .15s;font-family:inherit;}
+.m-btn:hover:not(.ms):not(.mw):not(.me){background:#1a2a4e;}
+.m-btn.ms{background:#0F6E56;color:#E1F5EE;border-color:#1D9E75;}
+.m-btn.mw{background:#185FA5;color:#E6F1FB;border-color:#378ADD;}
+.m-btn.me{background:#993C1D;color:#FAECE7;border-color:#D85A30;}
+.stops{flex:1;overflow-y:auto;padding:8px;}
+.stops::-webkit-scrollbar{width:4px;}
+.stops::-webkit-scrollbar-track{background:#0F3460;}
+.stops::-webkit-scrollbar-thumb{background:#C8A84B44;border-radius:2px;}
+.s-item{display:flex;align-items:center;gap:7px;padding:7px 9px;border-radius:6px;border:1px solid #2a3a5e;background:#0F3460;margin-bottom:4px;}
+.s-item.ss{border-color:#1D9E75;background:#0a2018;}
+.s-item.se{border-color:#D85A30;background:#220d06;}
+.s-dot{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;}
+.s-dot.ds{background:#1D9E75;color:#E1F5EE;}
+.s-dot.de{background:#D85A30;color:#FAECE7;}
+.s-dot.dw{background:#378ADD;color:#E6F1FB;}
+.s-info{flex:1;min-width:0;}
+.s-name{font-size:11px;font-weight:500;color:#dde4f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.s-coord{font-size:10px;color:#4d5e88;}
+.s-del{background:none;border:none;color:#3d4e77;cursor:pointer;padding:2px;font-size:14px;display:flex;line-height:1;}
+.s-del:hover{color:#E24B4A;}
+.gmap-link{display:inline-flex;align-items:center;gap:3px;font-size:10px;color:#4285F4;text-decoration:none;margin-top:2px;opacity:.8;}
+.gmap-link:hover{opacity:1;text-decoration:underline;}
+/* STATUS */
+.s-item.st-visited{border-color:#8B5CF6;background:#130d1f;}
+.s-item.st-delivered{border-color:#1D9E75;background:#071a10;}
+.s-item.st-failed{border-color:#E24B4A;background:#1a0707;}
+.status-legend{display:flex;gap:6px;padding:6px 12px;border-bottom:1px solid #0d1b35;flex-wrap:wrap;}
+.leg-item{display:flex;align-items:center;gap:4px;font-size:10px;color:#5566aa;}
+.leg-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.summary-row{display:flex;gap:4px;padding:6px 12px;border-bottom:1px solid #0d1b35;}
+.sum-chip{flex:1;text-align:center;padding:4px 2px;border-radius:5px;font-size:10px;font-weight:600;}
+.sum-chip.sc-p{background:#1e2d4a;color:#C8A84B;}
+.sum-chip.sc-v{background:#130d1f;color:#8B5CF6;}
+.sum-chip.sc-d{background:#0a2018;color:#1D9E75;}
+.sum-chip.sc-f{background:#1a0707;color:#E24B4A;}
+/* MAP STATUS POPUP */
+.st-popup{background:#1A1A2E;border:1.5px solid #C8A84B55;border-radius:10px;padding:10px 10px 8px;min-width:180px;box-shadow:0 4px 16px rgba(0,0,0,.6);}
+.st-popup-name{font-size:11px;font-weight:600;color:#dde4f0;margin-bottom:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.st-popup-btns{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
+.st-pb{padding:6px 4px;font-size:11px;font-weight:500;border-radius:6px;border:1px solid transparent;cursor:pointer;font-family:inherit;transition:all .12s;text-align:center;}
+.st-pb:hover{filter:brightness(1.15);}
+.st-pb.pb-pending{background:#1e2d4a;color:#C8A84B;border-color:#C8A84B55;}
+.st-pb.pb-visited{background:#1a0d2e;color:#8B5CF6;border-color:#8B5CF655;}
+.st-pb.pb-delivered{background:#0a2018;color:#1D9E75;border-color:#1D9E7555;}
+.st-pb.pb-failed{background:#1a0707;color:#E24B4A;border-color:#E24B4A55;}
+.st-pb.active{outline:2px solid currentColor;outline-offset:1px;}
+/* leaflet popup override */
+.leaflet-popup-content-wrapper{background:transparent!important;border:none!important;box-shadow:none!important;padding:0!important;}
+.leaflet-popup-content{margin:0!important;}
+.leaflet-popup-tip-container{display:none!important;}
+.empty{text-align:center;padding:24px 14px;color:#3d4e77;font-size:11px;line-height:1.7;}
+.empty i{font-size:28px;display:block;margin-bottom:8px;opacity:.35;}
+.s-foot{padding:10px 12px;border-top:1px solid #0d1b35;}
+.stats-row{display:flex;gap:5px;margin-bottom:8px;}
+.stat{flex:1;background:#0F3460;border:1px solid #2a3a5e;border-radius:6px;padding:6px;text-align:center;}
+.sv{font-size:15px;font-weight:600;color:#C8A84B;}
+.sl{font-size:9px;color:#4d5e88;margin-top:1px;}
+.go-btn{width:100%;padding:10px;background:linear-gradient(135deg,#C8A84B,#8B6E28);color:#1A1A2E;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;}
+.go-btn:hover:not(:disabled){filter:brightness(1.1);}
+.go-btn:disabled{background:#2a3a5e;color:#445599;cursor:not-allowed;}
+.clr-btn{width:100%;margin-top:5px;padding:6px;font-size:10px;background:none;color:#4d5e88;border:1px solid #2a3a5e;border-radius:6px;cursor:pointer;font-family:inherit;}
+.clr-btn:hover{background:#0F3460;color:#8899aa;}
+/* MAP */
+.map-wrap{flex:1;position:relative;}
+#map{width:100%;height:100%;}
+.hint-bar{position:absolute;top:10px;left:50%;transform:translateX(-50%);background:#1A1A2Eee;border:1px solid #C8A84B55;border-radius:20px;padding:5px 16px;font-size:11px;color:#C8A84B;z-index:1000;pointer-events:none;white-space:nowrap;}
+.loading{position:absolute;inset:0;background:#0f1a2ecc;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:2000;gap:12px;}
+.spin{width:30px;height:30px;border:3px solid #2a3a5e;border-top-color:#378ADD;border-radius:50%;animation:sp .8s linear infinite;}
+@keyframes sp{to{transform:rotate(360deg)}}
+.load-txt{font-size:12px;color:#C8A84B;}
+/* LOCATE BUTTON */
+.locate-btn{position:absolute;bottom:24px;right:12px;z-index:1000;background:#1A1A2E;border:1.5px solid #C8A84B88;border-radius:8px;color:#C8A84B;padding:8px 12px;font-size:11px;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s;box-shadow:0 2px 8px rgba(0,0,0,.4);}
+.locate-btn:hover{background:#C8A84B1a;border-color:#C8A84B;}
+.locate-btn.locating{color:#378ADD;border-color:#378ADD88;animation:pulse 1s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hdr">
+    <div class="logo-block">
+      <div class="logo-box">ATG</div>
+      <div class="logo-text">
+        <strong>Advanced Trading Gateways</strong>
+        FMCG Distribution · Oman
+      </div>
+    </div>
+    <div class="hdr-right">
+      <span>Muscat Delivery Route Optimizer</span><br>
+      <span class="algo-badge">2-opt optimized routing</span>
+    </div>
+  </div>
+  <div class="body">
+    <div class="side">
+      <div class="import-sec">
+        <div class="sec-label">Import Locations</div>
+        <div class="import-btns">
+          <button class="imp-btn" onclick="triggerExcel()">
+            <i class="ti ti-file-spreadsheet"></i>Upload Excel
+          </button>
+          <button class="imp-btn" onclick="dlTemplate()">
+            <i class="ti ti-download"></i>Template
+          </button>
+          <button class="sb-btn" onclick="syncFromSupabase()">
+            <i class="ti ti-database-import"></i>Sync ATG
+          </button>
+        </div>
+        <div class="sb-status" id="sbStatus"></div>
+        <div class="imp-note">
+          Columns: <strong style="color:#8899cc">Name, Latitude, Longitude</strong><br>
+          <span class="tmpl-link" onclick="dlTemplate()">Download sample template →</span>
+        </div>
+        <input type="file" id="xlFile" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleExcel(this)"/>
+      </div>
+      <div class="mode-bar">
+        <button class="m-btn ms" id="bS" onclick="setMode('start')"><i class="ti ti-flag"></i> Start</button>
+        <button class="m-btn" id="bW" onclick="setMode('waypoint')"><i class="ti ti-map-pin"></i> Add Stop</button>
+        <button class="m-btn" id="bE" onclick="setMode('end')"><i class="ti ti-flag-3"></i> End</button>
+      </div>
+      <div class="status-legend">
+        <div class="leg-item"><div class="leg-dot" style="background:#C8A84B"></div>Pending</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#8B5CF6"></div>Visited</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#1D9E75"></div>Delivered</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#E24B4A"></div>Failed</div>
+      </div>
+      <div class="summary-row" id="summaryRow" style="display:none">
+        <div class="sum-chip sc-p"><span id="sumP">0</span> Pend</div>
+        <div class="sum-chip sc-v"><span id="sumV">0</span> Visit</div>
+        <div class="sum-chip sc-d"><span id="sumD">0</span> Del</div>
+        <div class="sum-chip sc-f"><span id="sumF">0</span> Fail</div>
+      </div>
+      <div class="stops" id="stopsList">
+        <div class="empty"><i class="ti ti-map-pins"></i>Upload an Excel file or click the map to add delivery stops.</div>
+      </div>
+      <div class="s-foot">
+        <div class="stats-row" id="statsRow" style="display:none">
+          <div class="stat"><div class="sv" id="svDist">-</div><div class="sl">km total</div></div>
+          <div class="stat"><div class="sv" id="svTime">-</div><div class="sl">est. time</div></div>
+          <div class="stat"><div class="sv" id="svStops">0</div><div class="sl">stops</div></div>
+        </div>
+        <button class="go-btn" id="goBtn" onclick="calcRoute()" disabled>
+          <i class="ti ti-route"></i> Find Best Route
+        </button>
+        <button class="clr-btn" onclick="exportReport()" id="exportBtn" style="display:none;margin-top:5px;color:#C8A84B;border-color:#C8A84B44;"><i class="ti ti-file-export"></i> Export Report</button>
+        <button class="clr-btn" onclick="clearAll()">Clear all</button>
+      </div>
+    </div>
+    <div class="map-wrap">
+      <div id="map"></div>
+      <div class="hint-bar" id="hintBar">Click map to set start point</div>
+      <button class="locate-btn" id="locateBtn" onclick="locateMe()" title="Use my current location">
+        <i class="ti ti-current-location"></i> My Location
+      </button>
+      <div class="loading" id="loadOv" style="display:none">
+        <div class="spin"></div>
+        <div class="load-txt" id="loadTxt">Calculating...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const S={mode:'start',start:null,end:null,wps:[],routeLayer:null,map:null};
+const ST_COLOR={pending:'#C8A84B',delivered:'#1D9E75',failed:'#E24B4A'};
+
+function mkIcon(color,label,sz,status){
+  sz=sz||28;
+  const bColor=status?ST_COLOR[status]:'white';
+  const bW=status?3:2.5;
+  return L.divIcon({className:'',
+    html:`<div style="background:${color};width:${sz}px;height:${sz}px;border-radius:50%;border:${bW}px solid ${bColor};display:flex;align-items:center;justify-content:center;font-size:${sz<28?9:11}px;font-weight:700;color:white;box-shadow:0 2px 8px rgba(0,0,0,.45)">${label}</div>`,
+    iconSize:[sz,sz],iconAnchor:[sz/2,sz/2]});
+}
+
+function locateMe(){
+  if(!navigator.geolocation){alert('Geolocation is not supported by your browser.');return;}
+  const btn=document.getElementById('locateBtn');
+  btn.classList.add('locating');
+  btn.innerHTML='<i class="ti ti-loader"></i> Locating...';
+  navigator.geolocation.getCurrentPosition(
+    pos=>{
+      const lat=pos.coords.latitude,lng=pos.coords.longitude;
+      btn.classList.remove('locating');
+      btn.innerHTML='<i class="ti ti-current-location"></i> My Location';
+      if(S.mode==='start') setStart(lat,lng,'My Location');
+      else if(S.mode==='end') setEnd(lat,lng,'My Location');
+      else addWp(lat,lng,'My Location');
+      S.map.setView([lat,lng],14);
+      renderList();updateBtn();
+    },
+    err=>{
+      btn.classList.remove('locating');
+      btn.innerHTML='<i class="ti ti-current-location"></i> My Location';
+      const msgs={1:'Location access denied.',2:'Location unavailable.',3:'Request timed out.'};
+      alert(msgs[err.code]||'Could not get your location.');
+    },
+    {enableHighAccuracy:true,timeout:10000,maximumAge:0}
+  );
+}
+
+function initMap(){
+  S.map=L.map('map',{zoomControl:true}).setView([23.5880,58.3829],11);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'\u00a9 OpenStreetMap contributors',maxZoom:19}).addTo(S.map);
+  S.map.on('click',onMapClick);
+}
+
+function onMapClick(e){
+  const {lat,lng}=e.latlng;
+  if(S.mode==='start') setStart(lat,lng,null);
+  else if(S.mode==='end') setEnd(lat,lng,null);
+  else addWp(lat,lng,null);
+  renderList();updateBtn();
+}
+
+function setStart(lat,lng,name){
+  if(S.start) S.map.removeLayer(S.start.marker);
+  const m=L.marker([lat,lng],{icon:mkIcon('#1D9E75','S'),draggable:true}).addTo(S.map);
+  m.on('dragend',ev=>{S.start.lat=ev.target.getLatLng().lat;S.start.lng=ev.target.getLatLng().lng;renderList();});
+  S.start={lat,lng,marker:m,name:name||'Start point'};
+  setMode('waypoint');
+}
+
+function setEnd(lat,lng,name){
+  if(S.end) S.map.removeLayer(S.end.marker);
+  const m=L.marker([lat,lng],{icon:mkIcon('#D85A30','E'),draggable:true}).addTo(S.map);
+  m.on('dragend',ev=>{S.end.lat=ev.target.getLatLng().lat;S.end.lng=ev.target.getLatLng().lng;renderList();});
+  S.end={lat,lng,marker:m,name:name||'End point'};
+}
+
+function addWp(lat,lng,name,status){
+  const idx=S.wps.length+1;
+  const st=status||'pending';
+  const m=L.marker([lat,lng],{icon:mkIcon('#378ADD',idx,26,st),draggable:true}).addTo(S.map);
+  const wp={lat,lng,marker:m,id:Date.now()+Math.random(),name:name||('Stop '+idx),status:st};
+  m.on('dragend',ev=>{wp.lat=ev.target.getLatLng().lat;wp.lng=ev.target.getLatLng().lng;renderList();});
+  S.wps.push(wp);
+}
+
+function setStatus(id,st){
+  const wp=S.wps.find(w=>w.id===id);
+  if(!wp) return;
+  wp.status=st;
+  // rebuild marker with new status color ring
+  S.map.removeLayer(wp.marker);
+  const idx=S.wps.indexOf(wp)+1;
+  const m=L.marker([wp.lat,wp.lng],{icon:mkIcon('#378ADD',idx,26,st),draggable:true}).addTo(S.map);
+  m.on('dragend',ev=>{wp.lat=ev.target.getLatLng().lat;wp.lng=ev.target.getLatLng().lng;renderList();});
+  wp.marker=m;
+  renderList();
+  updateSummary();
+}
+
+function updateSummary(){
+  const p=S.wps.filter(w=>w.status==='pending').length;
+  const d=S.wps.filter(w=>w.status==='delivered').length;
+  const f=S.wps.filter(w=>w.status==='failed').length;
+  document.getElementById('sumP').textContent=p;
+  document.getElementById('sumD').textContent=d;
+  document.getElementById('sumF').textContent=f;
+  document.getElementById('summaryRow').style.display=S.wps.length?'flex':'none';
+}
+
+const modeCfg={
+  start:{id:'bS',cls:'ms',hint:'Click map to set start point'},
+  waypoint:{id:'bW',cls:'mw',hint:'Click map to add a delivery stop'},
+  end:{id:'bE',cls:'me',hint:'Click map to set end point'}
+};
+function setMode(m){
+  S.mode=m;
+  document.querySelectorAll('.m-btn').forEach(b=>b.className='m-btn');
+  const c=modeCfg[m];
+  document.getElementById(c.id).classList.add(c.cls);
+  document.getElementById('hintBar').textContent=c.hint;
+}
+
+function removeWp(id){
+  const i=S.wps.findIndex(w=>w.id===id);
+  if(i>=0){S.map.removeLayer(S.wps[i].marker);S.wps.splice(i,1);rebuildWpMarkers(S.wps);renderList();updateBtn();updateSummary();}
+}
+
+function rebuildWpMarkers(list){
+  list.forEach((wp,i)=>{
+    S.map.removeLayer(wp.marker);
+    const m=L.marker([wp.lat,wp.lng],{icon:mkIcon('#378ADD',i+1,26,wp.status||'pending'),draggable:true}).addTo(S.map);
+    m.on('dragend',ev=>{wp.lat=ev.target.getLatLng().lat;wp.lng=ev.target.getLatLng().lng;renderList();});
+    wp.marker=m;
+  });
+}
+
+function esc(s){return String(s).replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function gmapLink(lat,lng){
+  return `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+}
+
+function renderList(){
+  const el=document.getElementById('stopsList');
+  if(!S.start&&!S.end&&S.wps.length===0){
+    el.innerHTML='<div class="empty"><i class="ti ti-map-pins"></i>Upload an Excel file or click the map to add delivery stops.</div>';
+    document.getElementById('svStops').textContent=0;
+    document.getElementById('summaryRow').style.display='none';
+    return;
+  }
+  let h='';
+  if(S.start){
+    h+=`<div class="s-item ss">
+      <div class="s-dot ds">S</div>
+      <div class="s-info">
+        <div class="s-name">${esc(S.start.name)}</div>
+        <div class="s-coord">${S.start.lat.toFixed(4)}, ${S.start.lng.toFixed(4)}</div>
+        <a class="gmap-link" href="${gmapLink(S.start.lat,S.start.lng)}" target="_blank" rel="noopener"><i class="ti ti-brand-google-maps" style="font-size:11px"></i>Open in Google Maps</a>
+      </div>
+    </div>`;
+  }
+  S.wps.forEach((wp,i)=>{
+    const st=wp.status||'pending';
+    const stClass=st==='delivered'?'st-delivered':st==='failed'?'st-failed':'';
+    h+=`<div class="s-item ${stClass}">
+      <div class="s-dot dw">${i+1}</div>
+      <div class="s-info">
+        <div class="s-name">${esc(wp.name)}</div>
+        <div class="s-coord">${wp.lat.toFixed(4)}, ${wp.lng.toFixed(4)}</div>
+        <a class="gmap-link" href="${gmapLink(wp.lat,wp.lng)}" target="_blank" rel="noopener"><i class="ti ti-brand-google-maps" style="font-size:11px"></i>Open in Google Maps</a>
+        <div class="s-status-bar">
+          <button class="st-btn ${st==='pending'?'active-pending':''}" onclick="setStatus(${wp.id},'pending')">Pending</button>
+          <button class="st-btn ${st==='delivered'?'active-delivered':''}" onclick="setStatus(${wp.id},'delivered')">Delivered</button>
+          <button class="st-btn ${st==='failed'?'active-failed':''}" onclick="setStatus(${wp.id},'failed')">Failed</button>
+        </div>
+      </div>
+      <button class="s-del" onclick="removeWp(${wp.id})" aria-label="Remove stop"><i class="ti ti-x"></i></button>
+    </div>`;
+  });
+  if(S.end){
+    h+=`<div class="s-item se">
+      <div class="s-dot de">E</div>
+      <div class="s-info">
+        <div class="s-name">${esc(S.end.name)}</div>
+        <div class="s-coord">${S.end.lat.toFixed(4)}, ${S.end.lng.toFixed(4)}</div>
+        <a class="gmap-link" href="${gmapLink(S.end.lat,S.end.lng)}" target="_blank" rel="noopener"><i class="ti ti-brand-google-maps" style="font-size:11px"></i>Open in Google Maps</a>
+      </div>
+    </div>`;
+  }
+  el.innerHTML=h;
+  document.getElementById('svStops').textContent=S.wps.length;
+  updateSummary();
+}
+
+function updateBtn(){
+  document.getElementById('goBtn').disabled=!(S.start&&S.end&&S.wps.length>0);
+}
+
+function triggerExcel(){document.getElementById('xlFile').click();}
+
+function handleExcel(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const wb=XLSX.read(e.target.result,{type:'array'});
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      const rows=XLSX.utils.sheet_to_json(ws,{defval:''});
+      if(!rows.length){alert('No data found in file.');return;}
+      let added=0;
+      rows.forEach(row=>{
+        const getVal=names=>{for(const n of names){const k=Object.keys(row).find(k=>k.toLowerCase().trim()===n);if(k!==undefined&&row[k]!=='')return row[k];}return null;};
+        const lat=parseFloat(getVal(['latitude','lat','y']));
+        const lng=parseFloat(getVal(['longitude','lng','lon','long','x']));
+        const name=getVal(['name','location','address','title','stop','label'])||('Stop '+(S.wps.length+1));
+        const rawStatus=(getVal(['status','state'])||'pending').toLowerCase().trim();
+        const status=['delivered','failed'].includes(rawStatus)?rawStatus:'pending';
+        if(!isNaN(lat)&&!isNaN(lng)&&lat>=-90&&lat<=90&&lng>=-180&&lng<=180){addWp(lat,lng,name,status);added++;}
+      });
+      if(added>0){
+        const all=S.wps.map(p=>[p.lat,p.lng]);
+        if(S.start)all.push([S.start.lat,S.start.lng]);
+        if(S.end)all.push([S.end.lat,S.end.lng]);
+        if(all.length)S.map.fitBounds(L.latLngBounds(all),{padding:[50,50]});
+        renderList();updateBtn();
+        const next=!S.start?'Now set a Start point.':((!S.end)?'Now set an End point.':'Press "Find Best Route"!');
+        alert(added+' stops imported successfully.\n'+next);
+      } else {
+        alert('No valid rows found.\nRequired columns: Name, Latitude, Longitude');
+      }
+    }catch(err){alert('Error reading file: '+err.message);}
+    input.value='';
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function dlTemplate(){
+  const wb=XLSX.utils.book_new();
+  const ws=XLSX.utils.aoa_to_sheet([
+    ['Name','Latitude','Longitude','Status'],
+    ['Lulu Hypermarket Seeb','23.5929','58.1586','pending'],
+    ['Carrefour Muscat City Centre','23.6013','58.5914','pending'],
+    ['Sultan Center Al Khuwair','23.5924','58.3835','pending'],
+    ['Muscat Grand Mall','23.6134','58.5437','pending'],
+    ['Al Araimi Boulevard','23.5762','58.5071','pending'],
+    ['City Centre Qurum','23.5988','58.4102','pending'],
+  ]);
+  ws['!cols']=[{wch:32},{wch:14},{wch:14},{wch:12}];
+  XLSX.utils.book_append_sheet(wb,ws,'Stops');
+  XLSX.writeFile(wb,'ATG_Route_Template.xlsx');
+}
+
+function exportReport(){
+  const rows=[['Stop','Name','Latitude','Longitude','Status']];
+  if(S.start) rows.push(['Start',S.start.name,S.start.lat.toFixed(6),S.start.lng.toFixed(6),'—']);
+  S.wps.forEach((wp,i)=>rows.push([i+1,wp.name,wp.lat.toFixed(6),wp.lng.toFixed(6),wp.status||'pending']));
+  if(S.end) rows.push(['End',S.end.name,S.end.lat.toFixed(6),S.end.lng.toFixed(6),'—']);
+  const wb=XLSX.utils.book_new();
+  const ws=XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols']=[{wch:6},{wch:30},{wch:14},{wch:14},{wch:12}];
+  XLSX.utils.book_append_sheet(wb,ws,'Delivery Report');
+  const d=new Date();
+  XLSX.writeFile(wb,`ATG_Report_${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}.xlsx`);
+}
+
+function hdist(a,b){
+  const R=6371,dL=(b.lat-a.lat)*Math.PI/180,dG=(b.lng-a.lng)*Math.PI/180;
+  const x=Math.sin(dL/2)**2+Math.cos(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*Math.sin(dG/2)**2;
+  return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));
+}
+
+function nnSeed(start,pts){
+  let rem=[...pts],ord=[],cur=start;
+  while(rem.length){
+    let mi=0,md=Infinity;
+    rem.forEach((p,i)=>{const d=hdist(cur,p);if(d<md){md=d;mi=i;}});
+    ord.push(rem[mi]);cur=rem[mi];rem.splice(mi,1);
+  }
+  return ord;
+}
+
+function twoOpt(route){
+  const n=route.length;
+  let improved=true;
+  while(improved){
+    improved=false;
+    for(let i=1;i<n-2;i++){
+      for(let j=i+1;j<n-1;j++){
+        const d0=hdist(route[i-1],route[i])+hdist(route[j],route[j+1]);
+        const d1=hdist(route[i-1],route[j])+hdist(route[i],route[j+1]);
+        if(d1<d0-0.0001){
+          let l=i,r=j;
+          while(l<r){const t=route[l];route[l]=route[r];route[r]=t;l++;r--;}
+          improved=true;
+        }
+      }
+    }
+  }
+  return route;
+}
+
+async function calcRoute(){
+  const ov=document.getElementById('loadOv'),tx=document.getElementById('loadTxt');
+  ov.style.display='flex';
+  if(S.routeLayer){S.map.removeLayer(S.routeLayer);S.routeLayer=null;}
+  try{
+    tx.textContent='Step 1: Nearest-neighbour seed...';
+    await new Promise(r=>setTimeout(r,20));
+    const seed=nnSeed(S.start,S.wps);
+    tx.textContent='Step 2: 2-opt optimisation...';
+    await new Promise(r=>setTimeout(r,20));
+    let route=[S.start,...seed,S.end];
+    route=twoOpt(route);
+    const optimized=route.slice(1,route.length-1);
+    tx.textContent='Step 3: Fetching road route...';
+    const coord=route.map(p=>p.lng+','+p.lat).join(';');
+    const url='https://router.project-osrm.org/route/v1/driving/'+coord+'?overview=full&geometries=geojson';
+    const resp=await fetch(url);
+    const data=await resp.json();
+    if(data.code!=='Ok') throw new Error('Route not found. Verify coordinates are in Oman.');
+    const r=data.routes[0];
+    S.routeLayer=L.geoJSON(r.geometry,{style:{color:'#1a6fc4',weight:5,opacity:.92}}).addTo(S.map);
+    S.map.fitBounds(L.latLngBounds(route.map(p=>[p.lat,p.lng])),{padding:[50,50]});
+    document.getElementById('svDist').textContent=(r.distance/1000).toFixed(1);
+    const mins=Math.round(r.duration/60),h=Math.floor(mins/60),m=mins%60;
+    document.getElementById('svTime').textContent=h>0?(h+'h '+m+'m'):(mins+'m');
+    document.getElementById('statsRow').style.display='flex';
+    document.getElementById('exportBtn').style.display='block';
+    // preserve statuses when rebuilding
+    const statusMap={};S.wps.forEach(w=>statusMap[w.id]=w.status);
+    S.wps=optimized.map(wp=>({...wp,status:statusMap[wp.id]||wp.status||'pending'}));
+    rebuildWpMarkers(S.wps);
+    renderList();
+  }catch(err){alert('Route error: '+err.message);}
+  ov.style.display='none';
+}
+
+function clearAll(){
+  if(S.start){S.map.removeLayer(S.start.marker);S.start=null;}
+  if(S.end){S.map.removeLayer(S.end.marker);S.end=null;}
+  S.wps.forEach(wp=>S.map.removeLayer(wp.marker));S.wps=[];
+  if(S.routeLayer){S.map.removeLayer(S.routeLayer);S.routeLayer=null;}
+  document.getElementById('statsRow').style.display='none';
+  document.getElementById('summaryRow').style.display='none';
+  document.getElementById('exportBtn').style.display='none';
+  renderList();updateBtn();setMode('start');
+  document.getElementById('hintBar').textContent='Click map to set start point';
+}
+
+
+// ── SUPABASE CONFIG ──
+const SB_URL = "https://spvkshylftshggunpnoa.supabase.co";
+const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNwdmtzaHlsZnRzaGdndW5wbm9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5NjUwNjYsImV4cCI6MjA5NTU0MTA2Nn0.uRwk5kuXTej6HLQWSmqiQljyzCAL7K7qATz2lHEpZww";
+
+// ذخیره اطلاعات کامل مشتری برای هر wp
+const customerData = {};
+
+// ── SYNC FROM SUPABASE ──
+async function syncFromSupabase() {
+  const st = document.getElementById('sbStatus');
+  st.className = 'sb-status';
+  st.textContent = '⏳ Fetching visits from ATG database...';
+  st.className = 'sb-status ok';
+
+  try {
+    const res = await fetch(SB_URL + '/rest/v1/atg_visits?select=*&lat=neq.&lng=neq.&order=created_at.desc', {
+      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
+    });
+    const visits = await res.json();
+    if (!Array.isArray(visits) || !visits.length) {
+      st.textContent = '⚠️ No visits with GPS found in database.';
+      st.className = 'sb-status err';
+      return;
+    }
+
+    // فیلتر: فقط ردیف‌هایی که lat و lng دارند
+    const valid = visits.filter(v => v.lat && v.lng &&
+      !isNaN(parseFloat(v.lat)) && !isNaN(parseFloat(v.lng)));
+
+    if (!valid.length) {
+      st.textContent = '⚠️ No GPS data found in visits.';
+      st.className = 'sb-status err';
+      return;
+    }
+
+    // گروه‌بندی ۳۰ تایی بر اساس نزدیکی (clustering ساده)
+    const routes = buildRoutes(valid, 30);
+    renderRoutePanel(routes);
+
+    st.textContent = `✅ ${valid.length} locations loaded · ${routes.length} routes built`;
+    st.className = 'sb-status ok';
+
+  } catch(e) {
+    st.textContent = '❌ Connection error: ' + e.message;
+    st.className = 'sb-status err';
+  }
+}
+
+// ── ساخت روت‌ها با greedy clustering ──
+function buildRoutes(visits, maxPerRoute) {
+  const pts = visits.map(v => ({
+    lat: parseFloat(v.lat),
+    lng: parseFloat(v.lng),
+    visit: v
+  }));
+
+  const routes = [];
+  let remaining = [...pts];
+  let routeNum = 1;
+
+  while (remaining.length > 0) {
+    const seed = remaining[0];
+    // مرتب‌سازی بر اساس فاصله از seed
+    remaining.sort((a, b) => hdist(seed, a) - hdist(seed, b));
+    const group = remaining.splice(0, Math.min(maxPerRoute, remaining.length));
+    routes.push({
+      id: routeNum,
+      name: 'Route ' + routeNum,
+      points: group
+    });
+    routeNum++;
+  }
+  return routes;
+}
+
+// ── نمایش Route Panel ──
+let allRoutes = [];
+function renderRoutePanel(routes) {
+  allRoutes = routes;
+  const el = document.getElementById('routeList');
+  el.innerHTML = routes.map((r, i) =>
+    `<div class="route-item" onclick="loadRoute(${i})">
+      <span class="route-badge">R${r.id}</span>
+      <span class="route-name">${r.name}</span>
+      <span class="route-count">${r.points.length} stops</span>
+    </div>`
+  ).join('');
+}
+
+// ── لود کردن یک روت روی نقشه ──
+function loadRoute(idx) {
+  const route = allRoutes[idx];
+  if (!route) return;
+
+  // highlight active route
+  document.querySelectorAll('.route-item').forEach((el, i) => {
+    el.classList.toggle('active', i === idx);
+  });
+
+  // پاک کردن نقاط قبلی
+  S.wps.forEach(wp => S.map.removeLayer(wp.marker));
+  S.wps = [];
+
+  // اضافه کردن نقاط روت
+  route.points.forEach(pt => {
+    const v = pt.visit;
+    const lat = parseFloat(v.lat);
+    const lng = parseFloat(v.lng);
+    const name = v.company || v.name || 'Unknown';
+    addWpWithData(lat, lng, name, v);
+  });
+
+  // fit map
+  if (S.wps.length) {
+    const bounds = L.latLngBounds(S.wps.map(w => [w.lat, w.lng]));
+    S.map.fitBounds(bounds, {padding: [50, 50]});
+  }
+
+  renderList();
+  updateBtn();
+  document.getElementById('sbStatus').textContent =
+    `✅ Route ${route.id} loaded · ${route.points.length} stops`;
+}
+
+// ── addWp با اطلاعات کامل مشتری ──
+function addWpWithData(lat, lng, name, visitData) {
+  const idx = S.wps.length + 1;
+  const st = 'pending';
+  const m = L.marker([lat, lng], {icon: mkIcon('#378ADD', idx, 26, st), draggable: true}).addTo(S.map);
+  const wp = {lat, lng, marker: m, id: Date.now() + Math.random(), name, status: st};
+  m.on('dragend', ev => {wp.lat = ev.target.getLatLng().lat; wp.lng = ev.target.getLatLng().lng; renderList();});
+  // ذخیره اطلاعات مشتری
+  customerData[wp.id] = visitData;
+  attachCustomerPopup(m, wp, visitData);
+  S.wps.push(wp);
+}
+
+// ── Popup اطلاعات مشتری ──
+function attachCustomerPopup(marker, wp, v) {
+  marker.on('click', function() {
+    S.map.closePopup();
+
+    const phone = v.buyer_phone || v.owner_phone || '';
+    const waLink = phone ? `https://wa.me/${phone.replace(/[^0-9]/g,'')}` : '';
+    const navLink = `https://www.google.com/maps/dir/?api=1&destination=${wp.lat},${wp.lng}&travelmode=driving`;
+    const score = v.market_score || 0;
+    const stars = '★'.repeat(score) + '☆'.repeat(Math.max(0, 5 - score));
+
+    const popupHTML = `<div class="cust-popup">
+      <div class="cp-header">
+        <div>
+          <div class="cp-name">${esc(v.company || wp.name)}</div>
+          <span class="cp-type">${esc(v.type || 'FMCG')}</span>
+        </div>
+      </div>
+      ${v.area || v.district ? `<div class="cp-row"><i class="ti ti-map-pin"></i><span>${esc(v.area || v.district || '')}</span></div>` : ''}
+      ${v.owner_name ? `<div class="cp-row"><i class="ti ti-user"></i><span>${esc(v.owner_name)}</span></div>` : ''}
+      ${v.buyer_name ? `<div class="cp-row"><i class="ti ti-briefcase"></i><span>${esc(v.buyer_name)} (Buyer)</span></div>` : ''}
+      ${phone ? `<div class="cp-row"><i class="ti ti-phone"></i><span dir="ltr">${esc(phone)}</span></div>` : ''}
+      ${v.volume ? `<div class="cp-row"><i class="ti ti-currency-dollar"></i><span>${esc(v.volume)}/mo</span></div>` : ''}
+      ${v.delivery ? `<div class="cp-row"><i class="ti ti-truck"></i><span>Current delivery: ${esc(v.delivery)}</span></div>` : ''}
+      ${v.next_step ? `<div class="cp-row"><i class="ti ti-arrow-right"></i><span style="color:#C8A84B">${esc(v.next_step)}</span></div>` : ''}
+      ${score ? `<div class="cp-score"><span class="cp-score-label">Score:</span><span class="cp-stars">${stars}</span><span style="font-size:10px;color:#8899aa;margin-right:4px">${score}/5</span></div>` : ''}
+      <div class="cp-divider"></div>
+      <div style="font-size:10px;color:#5566aa;margin-bottom:6px">Update Status:</div>
+      <div class="st-popup-btns-full">
+        <button class="st-pb pb-pending${wp.status==='pending'?' active':''}" onclick="setStatusFromMap(${wp.id},'pending')">⏳ Pending</button>
+        <button class="st-pb pb-visited${wp.status==='visited'?' active':''}" onclick="setStatusFromMap(${wp.id},'visited')">👁 Visited</button>
+        <button class="st-pb pb-delivered${wp.status==='delivered'?' active':''}" onclick="setStatusFromMap(${wp.id},'delivered')">✔ Delivered</button>
+        <button class="st-pb pb-failed${wp.status==='failed'?' active':''}" onclick="setStatusFromMap(${wp.id},'failed')">✖ Failed</button>
+      </div>
+      <div class="cp-actions">
+        <a class="cp-act-btn nav" href="${navLink}" target="_blank">🧭 Navigate</a>
+        ${waLink ? `<a class="cp-act-btn wa" href="${waLink}" target="_blank">💬 WhatsApp</a>` : ''}
+      </div>
+    </div>`;
+
+    L.popup({closeButton: false, className: 'status-popup', offset: [0, -14]})
+      .setLatLng([wp.lat, wp.lng])
+      .setContent(popupHTML)
+      .openOn(S.map);
+  });
+}
+
+window.addEventListener('load', initMap);
+</script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#0a0f1e;}
+.wrap{display:flex;flex-direction:column;height:100vh;}
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;background:#1A1A2E;border-bottom:2px solid #C8A84B;flex-shrink:0;}
+.logo-block{display:flex;align-items:center;gap:12px;}
+.logo-box{background:#C8A84B;color:#1A1A2E;font-size:18px;font-weight:700;letter-spacing:1.5px;padding:6px 12px;border-radius:4px;}
+.logo-text{color:white;font-size:11px;line-height:1.5;}
+.logo-text strong{display:block;font-size:14px;color:#C8A84B;letter-spacing:.5px;}
+.hdr-right{text-align:right;}
+.hdr-right span{font-size:11px;color:#8899aa;}
+.algo-badge{display:inline-block;font-size:9px;background:#185FA522;color:#60a5fa;border:1px solid #378ADD55;border-radius:4px;padding:2px 7px;margin-top:3px;}
+.body{display:flex;flex:1;overflow:hidden;}
+/* SIDEBAR */
+.side{width:300px;min-width:300px;display:flex;flex-direction:column;background:#16213E;border-right:1px solid #0d1b35;}
+.import-sec{padding:10px 12px;border-bottom:1px solid #0d1b35;}
+.sec-label{font-size:10px;font-weight:600;color:#C8A84B;letter-spacing:.9px;text-transform:uppercase;margin-bottom:8px;}
+.import-btns{display:flex;gap:6px;}
+.imp-btn{flex:1;padding:8px 4px;background:#0F3460;border:1px dashed #C8A84B55;border-radius:6px;color:#C8A84B;font-size:11px;cursor:pointer;text-align:center;transition:all .15s;font-family:inherit;}
+.imp-btn:hover{background:#C8A84B1a;border-color:#C8A84B;}
+.imp-btn i{display:block;font-size:20px;margin-bottom:3px;}
+.imp-note{font-size:10px;color:#4d5e88;margin-top:6px;line-height:1.5;}
+.tmpl-link{color:#C8A84B;text-decoration:underline;cursor:pointer;}
+.mode-bar{display:flex;gap:5px;padding:8px 10px;border-bottom:1px solid #0d1b35;}
+.m-btn{flex:1;padding:6px 3px;font-size:11px;border-radius:5px;border:1px solid #2a3a5e;background:#0F3460;color:#8899aa;cursor:pointer;transition:all .15s;font-family:inherit;}
+.m-btn:hover:not(.ms):not(.mw):not(.me){background:#1a2a4e;}
+.m-btn.ms{background:#0F6E56;color:#E1F5EE;border-color:#1D9E75;}
+.m-btn.mw{background:#185FA5;color:#E6F1FB;border-color:#378ADD;}
+.m-btn.me{background:#993C1D;color:#FAECE7;border-color:#D85A30;}
+.stops{flex:1;overflow-y:auto;padding:8px;}
+.stops::-webkit-scrollbar{width:4px;}
+.stops::-webkit-scrollbar-track{background:#0F3460;}
+.stops::-webkit-scrollbar-thumb{background:#C8A84B44;border-radius:2px;}
+.s-item{display:flex;align-items:center;gap:7px;padding:7px 9px;border-radius:6px;border:1px solid #2a3a5e;background:#0F3460;margin-bottom:4px;}
+.s-item.ss{border-color:#1D9E75;background:#0a2018;}
+.s-item.se{border-color:#D85A30;background:#220d06;}
+.s-dot{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;}
+.s-dot.ds{background:#1D9E75;color:#E1F5EE;}
+.s-dot.de{background:#D85A30;color:#FAECE7;}
+.s-dot.dw{background:#378ADD;color:#E6F1FB;}
+.s-info{flex:1;min-width:0;}
+.s-name{font-size:11px;font-weight:500;color:#dde4f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.s-coord{font-size:10px;color:#4d5e88;}
+.s-del{background:none;border:none;color:#3d4e77;cursor:pointer;padding:2px;font-size:14px;display:flex;line-height:1;}
+.s-del:hover{color:#E24B4A;}
+.gmap-link{display:inline-flex;align-items:center;gap:3px;font-size:10px;color:#4285F4;text-decoration:none;margin-top:2px;opacity:.8;}
+.gmap-link:hover{opacity:1;text-decoration:underline;}
+/* STATUS */
+.s-item.st-visited{border-color:#8B5CF6;background:#130d1f;}
+.s-item.st-delivered{border-color:#1D9E75;background:#071a10;}
+.s-item.st-failed{border-color:#E24B4A;background:#1a0707;}
+.status-legend{display:flex;gap:6px;padding:6px 12px;border-bottom:1px solid #0d1b35;flex-wrap:wrap;}
+.leg-item{display:flex;align-items:center;gap:4px;font-size:10px;color:#5566aa;}
+.leg-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.summary-row{display:flex;gap:4px;padding:6px 12px;border-bottom:1px solid #0d1b35;}
+.sum-chip{flex:1;text-align:center;padding:4px 2px;border-radius:5px;font-size:10px;font-weight:600;}
+.sum-chip.sc-p{background:#1e2d4a;color:#C8A84B;}
+.sum-chip.sc-v{background:#130d1f;color:#8B5CF6;}
+.sum-chip.sc-d{background:#0a2018;color:#1D9E75;}
+.sum-chip.sc-f{background:#1a0707;color:#E24B4A;}
+/* MAP STATUS POPUP */
+.st-popup{background:#1A1A2E;border:1.5px solid #C8A84B55;border-radius:10px;padding:10px 10px 8px;min-width:180px;box-shadow:0 4px 16px rgba(0,0,0,.6);}
+.st-popup-name{font-size:11px;font-weight:600;color:#dde4f0;margin-bottom:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.st-popup-btns{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
+.st-pb{padding:6px 4px;font-size:11px;font-weight:500;border-radius:6px;border:1px solid transparent;cursor:pointer;font-family:inherit;transition:all .12s;text-align:center;}
+.st-pb:hover{filter:brightness(1.15);}
+.st-pb.pb-pending{background:#1e2d4a;color:#C8A84B;border-color:#C8A84B55;}
+.st-pb.pb-visited{background:#1a0d2e;color:#8B5CF6;border-color:#8B5CF655;}
+.st-pb.pb-delivered{background:#0a2018;color:#1D9E75;border-color:#1D9E7555;}
+.st-pb.pb-failed{background:#1a0707;color:#E24B4A;border-color:#E24B4A55;}
+.st-pb.active{outline:2px solid currentColor;outline-offset:1px;}
+/* leaflet popup override */
+.leaflet-popup-content-wrapper{background:transparent!important;border:none!important;box-shadow:none!important;padding:0!important;}
+.leaflet-popup-content{margin:0!important;}
+.leaflet-popup-tip-container{display:none!important;}
+.empty{text-align:center;padding:24px 14px;color:#3d4e77;font-size:11px;line-height:1.7;}
+.empty i{font-size:28px;display:block;margin-bottom:8px;opacity:.35;}
+.s-foot{padding:10px 12px;border-top:1px solid #0d1b35;}
+.stats-row{display:flex;gap:5px;margin-bottom:8px;}
+.stat{flex:1;background:#0F3460;border:1px solid #2a3a5e;border-radius:6px;padding:6px;text-align:center;}
+.sv{font-size:15px;font-weight:600;color:#C8A84B;}
+.sl{font-size:9px;color:#4d5e88;margin-top:1px;}
+.go-btn{width:100%;padding:10px;background:linear-gradient(135deg,#C8A84B,#8B6E28);color:#1A1A2E;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;}
+.go-btn:hover:not(:disabled){filter:brightness(1.1);}
+.go-btn:disabled{background:#2a3a5e;color:#445599;cursor:not-allowed;}
+.clr-btn{width:100%;margin-top:5px;padding:6px;font-size:10px;background:none;color:#4d5e88;border:1px solid #2a3a5e;border-radius:6px;cursor:pointer;font-family:inherit;}
+.clr-btn:hover{background:#0F3460;color:#8899aa;}
+/* MAP */
+.map-wrap{flex:1;position:relative;}
+#map{width:100%;height:100%;}
+.hint-bar{position:absolute;top:10px;left:50%;transform:translateX(-50%);background:#1A1A2Eee;border:1px solid #C8A84B55;border-radius:20px;padding:5px 16px;font-size:11px;color:#C8A84B;z-index:1000;pointer-events:none;white-space:nowrap;}
+.loading{position:absolute;inset:0;background:#0f1a2ecc;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:2000;gap:12px;}
+.spin{width:30px;height:30px;border:3px solid #2a3a5e;border-top-color:#378ADD;border-radius:50%;animation:sp .8s linear infinite;}
+@keyframes sp{to{transform:rotate(360deg)}}
+.load-txt{font-size:12px;color:#C8A84B;}
+/* LOCATE BUTTON */
+.locate-btn{position:absolute;bottom:24px;right:12px;z-index:1000;background:#1A1A2E;border:1.5px solid #C8A84B88;border-radius:8px;color:#C8A84B;padding:8px 12px;font-size:11px;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s;box-shadow:0 2px 8px rgba(0,0,0,.4);}
+.locate-btn:hover{background:#C8A84B1a;border-color:#C8A84B;}
+.locate-btn.locating{color:#378ADD;border-color:#378ADD88;animation:pulse 1s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hdr">
+    <div class="logo-block">
+      <div class="logo-box">ATG</div>
+      <div class="logo-text">
+        <strong>Advanced Trading Gateways</strong>
+        FMCG Distribution · Oman
+      </div>
+    </div>
+    <div class="hdr-right">
+      <span>Muscat Delivery Route Optimizer</span><br>
+      <span class="algo-badge">2-opt optimized routing</span>
+    </div>
+  </div>
+  <div class="body">
+    <div class="side">
+      <div class="import-sec">
+        <div class="sec-label">Import Locations</div>
+        <div class="import-btns">
+          <button class="imp-btn" onclick="triggerExcel()">
+            <i class="ti ti-file-spreadsheet"></i>Upload Excel
+          </button>
+          <button class="imp-btn" onclick="dlTemplate()">
+            <i class="ti ti-download"></i>Template
+          </button>
+          <button class="sb-btn" onclick="syncFromSupabase()">
+            <i class="ti ti-database-import"></i>Sync ATG
+          </button>
+        </div>
+        <div class="sb-status" id="sbStatus"></div>
+        <div class="imp-note">
+          Columns: <strong style="color:#8899cc">Name, Latitude, Longitude</strong><br>
+          <span class="tmpl-link" onclick="dlTemplate()">Download sample template →</span>
+        </div>
+        <input type="file" id="xlFile" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleExcel(this)"/>
+      </div>
+      <div class="mode-bar">
+        <button class="m-btn ms" id="bS" onclick="setMode('start')"><i class="ti ti-flag"></i> Start</button>
+        <button class="m-btn" id="bW" onclick="setMode('waypoint')"><i class="ti ti-map-pin"></i> Add Stop</button>
+        <button class="m-btn" id="bE" onclick="setMode('end')"><i class="ti ti-flag-3"></i> End</button>
+      </div>
+      <div class="status-legend">
+        <div class="leg-item"><div class="leg-dot" style="background:#C8A84B"></div>Pending</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#8B5CF6"></div>Visited</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#1D9E75"></div>Delivered</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#E24B4A"></div>Failed</div>
+      </div>
+      <div class="summary-row" id="summaryRow" style="display:none">
+        <div class="sum-chip sc-p"><span id="sumP">0</span> Pend</div>
+        <div class="sum-chip sc-v"><span id="sumV">0</span> Visit</div>
+        <div class="sum-chip sc-d"><span id="sumD">0</span> Del</div>
+        <div class="sum-chip sc-f"><span id="sumF">0</span> Fail</div>
+      </div>
+      <div class="stops" id="stopsList">
+        <div class="empty"><i class="ti ti-map-pins"></i>Upload an Excel file or click the map to add delivery stops.</div>
+      </div>
+      <div class="s-foot">
+        <div class="stats-row" id="statsRow" style="display:none">
+          <div class="stat"><div class="sv" id="svDist">-</div><div class="sl">km total</div></div>
+          <div class="stat"><div class="sv" id="svTime">-</div><div class="sl">est. time</div></div>
+          <div class="stat"><div class="sv" id="svStops">0</div><div class="sl">stops</div></div>
+        </div>
+        <button class="go-btn" id="goBtn" onclick="calcRoute()" disabled>
+          <i class="ti ti-route"></i> Find Best Route
+        </button>
+        <button class="clr-btn" onclick="exportReport()" id="exportBtn" style="display:none;margin-top:5px;color:#C8A84B;border-color:#C8A84B44;"><i class="ti ti-file-export"></i> Export Report</button>
+        <button class="clr-btn" onclick="clearAll()">Clear all</button>
+      </div>
+    </div>
+    <div class="map-wrap">
+      <div id="map"></div>
+      <div class="hint-bar" id="hintBar">Click map to set start point</div>
+      <button class="locate-btn" id="locateBtn" onclick="locateMe()" title="Use my current location">
+        <i class="ti ti-current-location"></i> My Location
+      </button>
+      <div class="loading" id="loadOv" style="display:none">
+        <div class="spin"></div>
+        <div class="load-txt" id="loadTxt">Calculating...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const S={mode:'start',start:null,end:null,wps:[],routeLayer:null,map:null};
+
+function locateMe(){
+  if(!navigator.geolocation){alert('Geolocation is not supported by your browser.');return;}
+  const btn=document.getElementById('locateBtn');
+  btn.classList.add('locating');
+  btn.innerHTML='<i class="ti ti-loader"></i> Locating...';
+  navigator.geolocation.getCurrentPosition(
+    pos=>{
+      const lat=pos.coords.latitude,lng=pos.coords.longitude;
+      btn.classList.remove('locating');
+      btn.innerHTML='<i class="ti ti-current-location"></i> My Location';
+      // Place as start or stop depending on current mode
+      if(S.mode==='start'){
+        setStart(lat,lng,'My Location');
+      } else if(S.mode==='end'){
+        setEnd(lat,lng,'My Location');
+      } else {
+        addWp(lat,lng,'My Location');
+      }
+      S.map.setView([lat,lng],14);
+      renderList();updateBtn();
+    },
+    err=>{
+      btn.classList.remove('locating');
+      btn.innerHTML='<i class="ti ti-current-location"></i> My Location';
+      const msgs={1:'Location access denied. Please allow location permission.',2:'Location unavailable.',3:'Location request timed out.'};
+      alert(msgs[err.code]||'Could not get your location.');
+    },
+    {enableHighAccuracy:true,timeout:10000,maximumAge:0}
+  );
+}
+
+function initMap(){
+  S.map=L.map('map',{zoomControl:true}).setView([23.5880,58.3829],11);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap contributors',maxZoom:19}).addTo(S.map);
+  S.map.on('click',onMapClick);
+}
+
+function mkIcon(color,label,sz){
+  sz=sz||28;
+  return L.divIcon({className:'',
+    html:`<div style="background:${color};width:${sz}px;height:${sz}px;border-radius:50%;border:2.5px solid white;display:flex;align-items:center;justify-content:center;font-size:${sz<28?9:11}px;font-weight:700;color:white;box-shadow:0 2px 8px rgba(0,0,0,.45)">${label}</div>`,
+    iconSize:[sz,sz],iconAnchor:[sz/2,sz/2]});
+}
+
+function onMapClick(e){
+  const {lat,lng}=e.latlng;
+  if(S.mode==='start') setStart(lat,lng,null);
+  else if(S.mode==='end') setEnd(lat,lng,null);
+  else addWp(lat,lng,null);
+  renderList();updateBtn();
+}
+
+function setStart(lat,lng,name){
+  if(S.start) S.map.removeLayer(S.start.marker);
+  const m=L.marker([lat,lng],{icon:mkIcon('#1D9E75','S'),draggable:true}).addTo(S.map);
+  m.on('dragend',ev=>{S.start.lat=ev.target.getLatLng().lat;S.start.lng=ev.target.getLatLng().lng;renderList();});
+  S.start={lat,lng,marker:m,name:name||'Start point'};
+  setMode('waypoint');
+}
+
+function setEnd(lat,lng,name){
+  if(S.end) S.map.removeLayer(S.end.marker);
+  const m=L.marker([lat,lng],{icon:mkIcon('#D85A30','E'),draggable:true}).addTo(S.map);
+  m.on('dragend',ev=>{S.end.lat=ev.target.getLatLng().lat;S.end.lng=ev.target.getLatLng().lng;renderList();});
+  S.end={lat,lng,marker:m,name:name||'End point'};
+}
+
+function addWp(lat,lng,name){
+  const idx=S.wps.length+1;
+  const m=L.marker([lat,lng],{icon:mkIcon('#378ADD',idx,26),draggable:true}).addTo(S.map);
+  const wp={lat,lng,marker:m,id:Date.now()+Math.random(),name:name||('Stop '+idx)};
+  m.on('dragend',ev=>{wp.lat=ev.target.getLatLng().lat;wp.lng=ev.target.getLatLng().lng;renderList();});
+  S.wps.push(wp);
+}
+
+const modeCfg={
+  start:{id:'bS',cls:'ms',hint:'Click map to set start point'},
+  waypoint:{id:'bW',cls:'mw',hint:'Click map to add a delivery stop'},
+  end:{id:'bE',cls:'me',hint:'Click map to set end point'}
+};
+function setMode(m){
+  S.mode=m;
+  document.querySelectorAll('.m-btn').forEach(b=>b.className='m-btn');
+  const c=modeCfg[m];
+  document.getElementById(c.id).classList.add(c.cls);
+  document.getElementById('hintBar').textContent=c.hint;
+}
+
+function removeWp(id){
+  const i=S.wps.findIndex(w=>w.id===id);
+  if(i>=0){S.map.removeLayer(S.wps[i].marker);S.wps.splice(i,1);rebuildWpMarkers(S.wps);renderList();updateBtn();}
+}
+
+function rebuildWpMarkers(list){
+  list.forEach((wp,i)=>{
+    S.map.removeLayer(wp.marker);
+    const m=L.marker([wp.lat,wp.lng],{icon:mkIcon('#378ADD',i+1,26),draggable:true}).addTo(S.map);
+    m.on('dragend',ev=>{wp.lat=ev.target.getLatLng().lat;wp.lng=ev.target.getLatLng().lng;renderList();});
+    wp.marker=m;
+  });
+}
+
+function esc(s){return String(s).replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function gmapLink(lat,lng,name){
+  const q=encodeURIComponent(name&&name!=='Start point'&&name!=='End point'?name:`${lat},${lng}`);
+  return `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+}
+
+function renderList(){
+  const el=document.getElementById('stopsList');
+  if(!S.start&&!S.end&&S.wps.length===0){
+    el.innerHTML='<div class="empty"><i class="ti ti-map-pins"></i>Upload an Excel file or click the map to add delivery stops.</div>';
+    document.getElementById('svStops').textContent=0;return;
+  }
+  let h='';
+  if(S.start){
+    const url=gmapLink(S.start.lat,S.start.lng,S.start.name);
+    h+=`<div class="s-item ss"><div class="s-dot ds">S</div><div class="s-info"><div class="s-name">${esc(S.start.name)}</div><div class="s-coord">${S.start.lat.toFixed(4)}, ${S.start.lng.toFixed(4)}</div><a class="gmap-link" href="${url}" target="_blank" rel="noopener"><i class="ti ti-brand-google-maps" style="font-size:11px"></i>Open in Google Maps</a></div></div>`;
+  }
+  S.wps.forEach((wp,i)=>{
+    const url=gmapLink(wp.lat,wp.lng,wp.name);
+    h+=`<div class="s-item"><div class="s-dot dw">${i+1}</div><div class="s-info"><div class="s-name">${esc(wp.name)}</div><div class="s-coord">${wp.lat.toFixed(4)}, ${wp.lng.toFixed(4)}</div><a class="gmap-link" href="${url}" target="_blank" rel="noopener"><i class="ti ti-brand-google-maps" style="font-size:11px"></i>Open in Google Maps</a></div><button class="s-del" onclick="removeWp(${wp.id})" aria-label="Remove stop"><i class="ti ti-x"></i></button></div>`;
+  });
+  if(S.end){
+    const url=gmapLink(S.end.lat,S.end.lng,S.end.name);
+    h+=`<div class="s-item se"><div class="s-dot de">E</div><div class="s-info"><div class="s-name">${esc(S.end.name)}</div><div class="s-coord">${S.end.lat.toFixed(4)}, ${S.end.lng.toFixed(4)}</div><a class="gmap-link" href="${url}" target="_blank" rel="noopener"><i class="ti ti-brand-google-maps" style="font-size:11px"></i>Open in Google Maps</a></div></div>`;
+  }
+  el.innerHTML=h;
+  document.getElementById('svStops').textContent=S.wps.length;
+}
+
+function updateBtn(){
+  document.getElementById('goBtn').disabled=!(S.start&&S.end&&S.wps.length>0);
+}
+
+function triggerExcel(){document.getElementById('xlFile').click();}
+
+function handleExcel(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const wb=XLSX.read(e.target.result,{type:'array'});
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      const rows=XLSX.utils.sheet_to_json(ws,{defval:''});
+      if(!rows.length){alert('No data found in file.');return;}
+      let added=0;
+      rows.forEach(row=>{
+        const getVal=names=>{for(const n of names){const k=Object.keys(row).find(k=>k.toLowerCase().trim()===n);if(k!==undefined&&row[k]!=='')return row[k];}return null;};
+        const lat=parseFloat(getVal(['latitude','lat','y']));
+        const lng=parseFloat(getVal(['longitude','lng','lon','long','x']));
+        const name=getVal(['name','location','address','title','stop','label'])||('Stop '+(S.wps.length+1));
+        if(!isNaN(lat)&&!isNaN(lng)&&lat>=-90&&lat<=90&&lng>=-180&&lng<=180){addWp(lat,lng,name);added++;}
+      });
+      if(added>0){
+        const all=S.wps.map(p=>[p.lat,p.lng]);
+        if(S.start)all.push([S.start.lat,S.start.lng]);
+        if(S.end)all.push([S.end.lat,S.end.lng]);
+        if(all.length)S.map.fitBounds(L.latLngBounds(all),{padding:[50,50]});
+        renderList();updateBtn();
+        const next=!S.start?'Now set a Start point.':((!S.end)?'Now set an End point.':'Press "Find Best Route"!');
+        alert(added+' stops imported successfully.\n'+next);
+      } else {
+        alert('No valid rows found.\nRequired columns: Name, Latitude, Longitude');
+      }
+    }catch(err){alert('Error reading file: '+err.message);}
+    input.value='';
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function dlTemplate(){
+  const wb=XLSX.utils.book_new();
+  const ws=XLSX.utils.aoa_to_sheet([
+    ['Name','Latitude','Longitude'],
+    ['Lulu Hypermarket Seeb','23.5929','58.1586'],
+    ['Carrefour Muscat City Centre','23.6013','58.5914'],
+    ['Sultan Center Al Khuwair','23.5924','58.3835'],
+    ['Muscat Grand Mall','23.6134','58.5437'],
+    ['Al Araimi Boulevard','23.5762','58.5071'],
+    ['City Centre Qurum','23.5988','58.4102'],
+  ]);
+  ws['!cols']=[{wch:32},{wch:14},{wch:14}];
+  XLSX.utils.book_append_sheet(wb,ws,'Stops');
+  XLSX.writeFile(wb,'ATG_Route_Template.xlsx');
+}
+
+/* ── Distance ── */
+function hdist(a,b){
+  const R=6371,dL=(b.lat-a.lat)*Math.PI/180,dG=(b.lng-a.lng)*Math.PI/180;
+  const x=Math.sin(dL/2)**2+Math.cos(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*Math.sin(dG/2)**2;
+  return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));
+}
+
+/* ── Nearest Neighbour seed ── */
+function nnSeed(start,pts){
+  let rem=[...pts],ord=[],cur=start;
+  while(rem.length){
+    let mi=0,md=Infinity;
+    rem.forEach((p,i)=>{const d=hdist(cur,p);if(d<md){md=d;mi=i;}});
+    ord.push(rem[mi]);cur=rem[mi];rem.splice(mi,1);
+  }
+  return ord;
+}
+
+/* ── 2-opt: improves full route [start,...stops,end] ── */
+function twoOpt(route){
+  const n=route.length;
+  let improved=true;
+  while(improved){
+    improved=false;
+    for(let i=1;i<n-2;i++){
+      for(let j=i+1;j<n-1;j++){
+        const d0=hdist(route[i-1],route[i])+hdist(route[j],route[j+1]);
+        const d1=hdist(route[i-1],route[j])+hdist(route[i],route[j+1]);
+        if(d1<d0-0.0001){
+          let l=i,r=j;
+          while(l<r){const t=route[l];route[l]=route[r];route[r]=t;l++;r--;}
+          improved=true;
+        }
+      }
+    }
+  }
+  return route;
+}
+
+async function calcRoute(){
+  const ov=document.getElementById('loadOv'),tx=document.getElementById('loadTxt');
+  ov.style.display='flex';
+  if(S.routeLayer){S.map.removeLayer(S.routeLayer);S.routeLayer=null;}
+  try{
+    tx.textContent='Step 1: Nearest-neighbour seed...';
+    await new Promise(r=>setTimeout(r,20));
+    const seed=nnSeed(S.start,S.wps);
+
+    tx.textContent='Step 2: 2-opt optimisation...';
+    await new Promise(r=>setTimeout(r,20));
+    let route=[S.start,...seed,S.end];
+    route=twoOpt(route);
+    const optimized=route.slice(1,route.length-1);
+
+    tx.textContent='Step 3: Fetching road route...';
+    const coord=route.map(p=>p.lng+','+p.lat).join(';');
+    const url='https://router.project-osrm.org/route/v1/driving/'+coord+'?overview=full&geometries=geojson';
+    const resp=await fetch(url);
+    const data=await resp.json();
+    if(data.code!=='Ok') throw new Error('Route not found. Verify coordinates are in Oman.');
+    const r=data.routes[0];
+
+    // Blue route
+    S.routeLayer=L.geoJSON(r.geometry,{style:{color:'#1a6fc4',weight:5,opacity:.92}}).addTo(S.map);
+    S.map.fitBounds(L.latLngBounds(route.map(p=>[p.lat,p.lng])),{padding:[50,50]});
+
+    document.getElementById('svDist').textContent=(r.distance/1000).toFixed(1);
+    const mins=Math.round(r.duration/60),h=Math.floor(mins/60),m=mins%60;
+    document.getElementById('svTime').textContent=h>0?(h+'h '+m+'m'):(mins+'m');
+    document.getElementById('statsRow').style.display='flex';
+
+    S.wps=optimized;
+    rebuildWpMarkers(S.wps);
+    renderList();
+  }catch(err){alert('Route error: '+err.message);}
+  ov.style.display='none';
+}
+
+function clearAll(){
+  if(S.start){S.map.removeLayer(S.start.marker);S.start=null;}
+  if(S.end){S.map.removeLayer(S.end.marker);S.end=null;}
+  S.wps.forEach(wp=>S.map.removeLayer(wp.marker));S.wps=[];
+  if(S.routeLayer){S.map.removeLayer(S.routeLayer);S.routeLayer=null;}
+  document.getElementById('statsRow').style.display='none';
+  renderList();updateBtn();setMode('start');
+  document.getElementById('hintBar').textContent='Click map to set start point';
+}
+
+
+// ── SUPABASE CONFIG ──
+const SB_URL = "https://spvkshylftshggunpnoa.supabase.co";
+const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNwdmtzaHlsZnRzaGdndW5wbm9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5NjUwNjYsImV4cCI6MjA5NTU0MTA2Nn0.uRwk5kuXTej6HLQWSmqiQljyzCAL7K7qATz2lHEpZww";
+
+// ذخیره اطلاعات کامل مشتری برای هر wp
+const customerData = {};
+
+// ── SYNC FROM SUPABASE ──
+async function syncFromSupabase() {
+  const st = document.getElementById('sbStatus');
+  st.className = 'sb-status';
+  st.textContent = '⏳ Fetching visits from ATG database...';
+  st.className = 'sb-status ok';
+
+  try {
+    const res = await fetch(SB_URL + '/rest/v1/atg_visits?select=*&lat=neq.&lng=neq.&order=created_at.desc', {
+      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
+    });
+    const visits = await res.json();
+    if (!Array.isArray(visits) || !visits.length) {
+      st.textContent = '⚠️ No visits with GPS found in database.';
+      st.className = 'sb-status err';
+      return;
+    }
+
+    // فیلتر: فقط ردیف‌هایی که lat و lng دارند
+    const valid = visits.filter(v => v.lat && v.lng &&
+      !isNaN(parseFloat(v.lat)) && !isNaN(parseFloat(v.lng)));
+
+    if (!valid.length) {
+      st.textContent = '⚠️ No GPS data found in visits.';
+      st.className = 'sb-status err';
+      return;
+    }
+
+    // گروه‌بندی ۳۰ تایی بر اساس نزدیکی (clustering ساده)
+    const routes = buildRoutes(valid, 30);
+    renderRoutePanel(routes);
+
+    st.textContent = `✅ ${valid.length} locations loaded · ${routes.length} routes built`;
+    st.className = 'sb-status ok';
+
+  } catch(e) {
+    st.textContent = '❌ Connection error: ' + e.message;
+    st.className = 'sb-status err';
+  }
+}
+
+// ── ساخت روت‌ها با greedy clustering ──
+function buildRoutes(visits, maxPerRoute) {
+  const pts = visits.map(v => ({
+    lat: parseFloat(v.lat),
+    lng: parseFloat(v.lng),
+    visit: v
+  }));
+
+  const routes = [];
+  let remaining = [...pts];
+  let routeNum = 1;
+
+  while (remaining.length > 0) {
+    const seed = remaining[0];
+    // مرتب‌سازی بر اساس فاصله از seed
+    remaining.sort((a, b) => hdist(seed, a) - hdist(seed, b));
+    const group = remaining.splice(0, Math.min(maxPerRoute, remaining.length));
+    routes.push({
+      id: routeNum,
+      name: 'Route ' + routeNum,
+      points: group
+    });
+    routeNum++;
+  }
+  return routes;
+}
+
+// ── نمایش Route Panel ──
+let allRoutes = [];
+function renderRoutePanel(routes) {
+  allRoutes = routes;
+  const el = document.getElementById('routeList');
+  el.innerHTML = routes.map((r, i) =>
+    `<div class="route-item" onclick="loadRoute(${i})">
+      <span class="route-badge">R${r.id}</span>
+      <span class="route-name">${r.name}</span>
+      <span class="route-count">${r.points.length} stops</span>
+    </div>`
+  ).join('');
+}
+
+// ── لود کردن یک روت روی نقشه ──
+function loadRoute(idx) {
+  const route = allRoutes[idx];
+  if (!route) return;
+
+  // highlight active route
+  document.querySelectorAll('.route-item').forEach((el, i) => {
+    el.classList.toggle('active', i === idx);
+  });
+
+  // پاک کردن نقاط قبلی
+  S.wps.forEach(wp => S.map.removeLayer(wp.marker));
+  S.wps = [];
+
+  // اضافه کردن نقاط روت
+  route.points.forEach(pt => {
+    const v = pt.visit;
+    const lat = parseFloat(v.lat);
+    const lng = parseFloat(v.lng);
+    const name = v.company || v.name || 'Unknown';
+    addWpWithData(lat, lng, name, v);
+  });
+
+  // fit map
+  if (S.wps.length) {
+    const bounds = L.latLngBounds(S.wps.map(w => [w.lat, w.lng]));
+    S.map.fitBounds(bounds, {padding: [50, 50]});
+  }
+
+  renderList();
+  updateBtn();
+  document.getElementById('sbStatus').textContent =
+    `✅ Route ${route.id} loaded · ${route.points.length} stops`;
+}
+
+// ── addWp با اطلاعات کامل مشتری ──
+function addWpWithData(lat, lng, name, visitData) {
+  const idx = S.wps.length + 1;
+  const st = 'pending';
+  const m = L.marker([lat, lng], {icon: mkIcon('#378ADD', idx, 26, st), draggable: true}).addTo(S.map);
+  const wp = {lat, lng, marker: m, id: Date.now() + Math.random(), name, status: st};
+  m.on('dragend', ev => {wp.lat = ev.target.getLatLng().lat; wp.lng = ev.target.getLatLng().lng; renderList();});
+  // ذخیره اطلاعات مشتری
+  customerData[wp.id] = visitData;
+  attachCustomerPopup(m, wp, visitData);
+  S.wps.push(wp);
+}
+
+// ── Popup اطلاعات مشتری ──
+function attachCustomerPopup(marker, wp, v) {
+  marker.on('click', function() {
+    S.map.closePopup();
+
+    const phone = v.buyer_phone || v.owner_phone || '';
+    const waLink = phone ? `https://wa.me/${phone.replace(/[^0-9]/g,'')}` : '';
+    const navLink = `https://www.google.com/maps/dir/?api=1&destination=${wp.lat},${wp.lng}&travelmode=driving`;
+    const score = v.market_score || 0;
+    const stars = '★'.repeat(score) + '☆'.repeat(Math.max(0, 5 - score));
+
+    const popupHTML = `<div class="cust-popup">
+      <div class="cp-header">
+        <div>
+          <div class="cp-name">${esc(v.company || wp.name)}</div>
+          <span class="cp-type">${esc(v.type || 'FMCG')}</span>
+        </div>
+      </div>
+      ${v.area || v.district ? `<div class="cp-row"><i class="ti ti-map-pin"></i><span>${esc(v.area || v.district || '')}</span></div>` : ''}
+      ${v.owner_name ? `<div class="cp-row"><i class="ti ti-user"></i><span>${esc(v.owner_name)}</span></div>` : ''}
+      ${v.buyer_name ? `<div class="cp-row"><i class="ti ti-briefcase"></i><span>${esc(v.buyer_name)} (Buyer)</span></div>` : ''}
+      ${phone ? `<div class="cp-row"><i class="ti ti-phone"></i><span dir="ltr">${esc(phone)}</span></div>` : ''}
+      ${v.volume ? `<div class="cp-row"><i class="ti ti-currency-dollar"></i><span>${esc(v.volume)}/mo</span></div>` : ''}
+      ${v.delivery ? `<div class="cp-row"><i class="ti ti-truck"></i><span>Current delivery: ${esc(v.delivery)}</span></div>` : ''}
+      ${v.next_step ? `<div class="cp-row"><i class="ti ti-arrow-right"></i><span style="color:#C8A84B">${esc(v.next_step)}</span></div>` : ''}
+      ${score ? `<div class="cp-score"><span class="cp-score-label">Score:</span><span class="cp-stars">${stars}</span><span style="font-size:10px;color:#8899aa;margin-right:4px">${score}/5</span></div>` : ''}
+      <div class="cp-divider"></div>
+      <div style="font-size:10px;color:#5566aa;margin-bottom:6px">Update Status:</div>
+      <div class="st-popup-btns-full">
+        <button class="st-pb pb-pending${wp.status==='pending'?' active':''}" onclick="setStatusFromMap(${wp.id},'pending')">⏳ Pending</button>
+        <button class="st-pb pb-visited${wp.status==='visited'?' active':''}" onclick="setStatusFromMap(${wp.id},'visited')">👁 Visited</button>
+        <button class="st-pb pb-delivered${wp.status==='delivered'?' active':''}" onclick="setStatusFromMap(${wp.id},'delivered')">✔ Delivered</button>
+        <button class="st-pb pb-failed${wp.status==='failed'?' active':''}" onclick="setStatusFromMap(${wp.id},'failed')">✖ Failed</button>
+      </div>
+      <div class="cp-actions">
+        <a class="cp-act-btn nav" href="${navLink}" target="_blank">🧭 Navigate</a>
+        ${waLink ? `<a class="cp-act-btn wa" href="${waLink}" target="_blank">💬 WhatsApp</a>` : ''}
+      </div>
+    </div>`;
+
+    L.popup({closeButton: false, className: 'status-popup', offset: [0, -14]})
+      .setLatLng([wp.lat, wp.lng])
+      .setContent(popupHTML)
+      .openOn(S.map);
+  });
+}
+
+window.addEventListener('load', initMap);
+</script>
+</body>
+</html>
