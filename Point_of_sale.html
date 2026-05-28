@@ -999,38 +999,77 @@ function saveRecord() {
   const dateVal = document.getElementById("disp-date").textContent;
   const timeVal = document.getElementById("disp-time").textContent;
   const gmapLink = gpsData ? "https://www.google.com/maps?q=" + gpsData.lat + "," + gpsData.lng : "";
+  const sess = (() => { try { return JSON.parse(sessionStorage.getItem("atg_session") || "null"); } catch(e) { return null; } })();
+
   const rec = {
-    id: Date.now(),
-    city: (document.getElementById("city-select") ? document.getElementById("city-select").options[document.getElementById("city-select").selectedIndex].text : city),
-    date: dateVal, time: timeVal,
-    company: v("f-company"), area: v("f-area"), type: v("f-type"), 
-    lat: gpsData ? gpsData.lat : "", lng: gpsData ? gpsData.lng : "",
-    acc: gpsData ? gpsData.acc : "", gmapLink,
-    photos: photos.length,
-    ownerName: v("f-owner-name"), ownerPhone: v("f-owner-phone"),
-    buyerName: v("f-buyer-name"), buyerPhone: v("f-buyer-phone"), buyerEmail: v("f-buyer-email"),
-    whatsapp: v("f-whatsapp"), langPref: v("f-lang"), callTime: v("f-calltime"),
-    volume: v("f-volume"), supCount: v("f-sup-count"),
-    products: getTags("tw-prods").join(", "),
-    categories: getChk("cats-list"),
-    brands: getTags("tw-brands").join(", "),
-    delivery: v("f-delivery"), payment: v("f-payment"), minOrder: v("f-minord"),
-    problems: getChk("prob-list"),
+    city: city,
+    date: dateVal,
+    time: timeVal,
+    company: v("f-company"),
+    area: v("f-area"),
+    type: v("f-type"),
+    lat: gpsData ? gpsData.lat : "",
+    lng: gpsData ? gpsData.lng : "",
+    acc: gpsData ? String(gpsData.acc) : "",
+    gmap_link: gmapLink,
+    photos: photoDataURLs.length,
+    owner_name: v("f-owner-name"),
+    owner_phone: v("f-owner-phone"),
+    buyer_name: v("f-buyer-name"),
+    buyer_phone: v("f-buyer-phone"),
+    buyer_email: v("f-buyer-email"),
+    whatsapp: v("f-whatsapp"),
+    lang_pref: v("f-lang"),
+    call_time: v("f-call-time"),
+    volume: v("f-volume"),
+    sup_count: v("f-sup-count"),
+    products: getTags("products-wrap").join(", "),
+    categories: getChk("step-3"),
+    brands: getTags("brands-wrap").join(", "),
+    delivery: v("f-delivery"),
+    payment: v("f-payment"),
+    min_order: v("f-minord"),
+    problems: getChk("step-4"),
     shortage: v("f-shortage"),
-    readiness: ratings["rg-ready"] || "",
-    marketScore: ratings["rg-mkt"] || "",
-    rivals: getTags("tw-rivals").join(", "),
-    barriers: getChk("barrier-list"),
-    nextStep: v("f-nextstep"),
-    notes: v("f-notes"), strengths: v("f-strengths"), risks: v("f-risks"),
-    todos: getTags("tw-todos").join(", "),
-    followup: v("f-followup"), priority: v("f-priority"),
-    agent: v("f-agent"),
-    lang
+    readiness: ratings["rg-ready"] || 0,
+    market_score: ratings["rg-mkt"] || 0,
+    rivals: getTags("rivals-wrap").join(", "),
+    barriers: getChk("step-5"),
+    next_step: v("f-nextstep"),
+    notes: v("f-notes"),
+    strengths: v("f-strengths"),
+    risks: v("f-risks"),
+    todos: getTags("todos-wrap").join(", "),
+    followup: v("f-followup"),
+    priority: v("f-priority"),
+    agent: v("f-agent") || (sess ? sess.name : ""),
+    record_lang: lang,
+    district: (() => { const ds = document.getElementById("district-select"); return ds ? ds.value : ""; })()
   };
-  records.push(rec);
-  try { localStorage.setItem("atg_rec2", JSON.stringify(records)); } catch(e) {}
-  document.getElementById("suc-msg").textContent = rec.company + " · " + rec.city;
+
+  // ذخیره local
+  records.push({...rec, id: Date.now(), lang});
+  localStorage.setItem("atg_rec2", JSON.stringify(records));
+
+  // ذخیره Supabase
+  fetch("https://spvkshylftshggunpnoa.supabase.co/rest/v1/atg_visits", {
+    method: "POST",
+    headers: {
+      "apikey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNwdmtzaHlsZnRzaGdndW5wbm9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5NjUwNjYsImV4cCI6MjA5NTU0MTA2Nn0.uRwk5kuXTej6HLQWSmqiQljyzCAL7K7qATz2lHEpZww",
+      "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNwdmtzaHlsZnRzaGdndW5wbm9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5NjUwNjYsImV4cCI6MjA5NTU0MTA2Nn0.uRwk5kuXTej6HLQWSmqiQljyzCAL7K7qATz2lHEpZww",
+      "Content-Type": "application/json",
+      "Prefer": "return=minimal"
+    },
+    body: JSON.stringify(rec)
+  }).then(r => {
+    if (r.ok) {
+      console.log("✅ Saved to Supabase");
+    } else {
+      r.text().then(t => console.warn("Supabase error:", t));
+    }
+  }).catch(e => console.warn("Network error:", e));
+
+  document.getElementById("success-msg").textContent = rec.company + " · " + rec.city;
   showView("success");
 }
 
