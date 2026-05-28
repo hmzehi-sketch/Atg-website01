@@ -14,47 +14,6 @@
 --atg-ok:#0d6e4a;--atg-ok-bg:#e6f4ee;--atg-err:#b91c1c;--atg-err-bg:#fef2f2;
 --r:10px;--sh:0 2px 12px rgba(10,22,40,.08);
 }
-
-/* AUTH GUARD */
-.auth-guard {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: #040D1A;
-  z-index: 9999;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-}
-.auth-guard.show { display: flex; }
-.guard-box {
-  background: #071220;
-  border: 0.5px solid #A07830;
-  padding: 2.5rem 2rem;
-  width: 100%;
-  max-width: 380px;
-  text-align: center;
-}
-.guard-logo {
-  width: 48px; height: 48px;
-  border: 1.5px solid #C9A84C;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 14px; font-weight: 700; color: #C9A84C;
-  margin: 0 auto 1.2rem;
-}
-.guard-title { font-size: 18px; font-weight: 500; color: #EEF2F8; margin-bottom: 4px; }
-.guard-sub { font-size: 11px; color: #7A90B0; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 1.8rem; }
-.guard-field { margin-bottom: 1rem; text-align: left; }
-.guard-field label { display: block; font-size: 11px; font-weight: 600; color: #7A90B0; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 5px; }
-.guard-field input { width: 100%; padding: 10px 14px; background: #0C1A2E; border: 0.5px solid #132540; color: #EEF2F8; font-size: 13px; font-family: inherit; outline: none; direction: ltr; transition: border-color 0.2s; }
-.guard-field input:focus { border-color: #C9A84C; }
-.guard-err { font-size: 12px; color: #e05a5a; margin-bottom: 1rem; display: none; padding: 7px; background: rgba(224,90,90,0.08); border: 0.5px solid rgba(224,90,90,0.3); }
-.guard-err.show { display: block; }
-.guard-btn { width: 100%; background: #C9A84C; color: #040D1A; border: none; padding: 11px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 0.3rem; }
-.guard-btn:hover { background: #E8C97A; }
-.guard-back { margin-top: 1rem; font-size: 12px; color: #7A90B0; cursor: pointer; text-decoration: underline; }
-.guard-back:hover { color: #C9A84C; }
-
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:"Segoe UI",Tahoma,Arial,sans-serif;background:var(--atg-off);color:var(--atg-text);min-height:100vh;}
 [dir=ltr]{direction:ltr;}
@@ -352,6 +311,25 @@ body{font-family:"Segoe UI",Tahoma,Arial,sans-serif;background:var(--atg-off);co
           <div class="loc-box">
             <button class="loc-btn" onclick="getLocation()" id="loc-btn">📡 <span id="t-loc-btn">ثبت موقعیت با یک کلیک</span></button>
             <div class="loc-status" id="loc-status"></div>
+            <div style="margin:8px 0;display:flex;align-items:center;gap:8px">
+              <div style="flex:1;height:1px;background:var(--atg-border)"></div>
+              <span style="font-size:10px;color:var(--atg-muted);white-space:nowrap" id="t-or-manual">یا وارد کردن دستی</span>
+              <div style="flex:1;height:1px;background:var(--atg-border)"></div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+              <div>
+                <label style="display:block;font-size:10px;font-weight:600;color:var(--atg-muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px" id="t-lat-label">عرض جغرافیایی (Lat)</label>
+                <input type="number" step="any" id="manual-lat" placeholder="مثال: 23.588" dir="ltr"
+                  style="width:100%;padding:8px 10px;border:1.5px solid var(--atg-border);border-radius:8px;font-size:13px;color:var(--atg-text);background:#fff;font-family:inherit;outline:none"
+                  oninput="applyManualGPS()" />
+              </div>
+              <div>
+                <label style="display:block;font-size:10px;font-weight:600;color:var(--atg-muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px" id="t-lng-label">طول جغرافیایی (Lng)</label>
+                <input type="number" step="any" id="manual-lng" placeholder="مثال: 58.393" dir="ltr"
+                  style="width:100%;padding:8px 10px;border:1.5px solid var(--atg-border);border-radius:8px;font-size:13px;color:var(--atg-text);background:#fff;font-family:inherit;outline:none"
+                  oninput="applyManualGPS()" />
+              </div>
+            </div>
             <div class="loc-result" id="loc-result">
               <div class="loc-coords" id="loc-coords"></div>
               <a class="loc-link" id="loc-gmap-link" href="#" target="_blank">🗺️ <span id="t-open-map">باز کردن در گوگل مپ</span></a>
@@ -657,7 +635,7 @@ const T = {
     "t-agent-label":"کارشناس ATG","agent-ph":"نام شما",
     "t-save":"✓ ذخیره",
     "t-suc-title":"گزارش ذخیره شد","t-suc-home":"🏠 لیست","t-suc-new":"+ بازدید جدید","t-suc-xl":"📊 اکسل",
-    "loc-searching":"در حال دریافت موقعیت...","loc-error":"خطا در دریافت موقعیت","loc-success":"موقعیت ثبت شد ✓",
+    "t-or-manual":"یا وارد کردن دستی","t-lat-label":"عرض جغرافیایی (Lat)","t-lng-label":"طول جغرافیایی (Lng)","loc-searching":"در حال دریافت موقعیت...","loc-error":"خطا در دریافت موقعیت","loc-success":"موقعیت ثبت شد ✓",
     "copied":"کپی شد ✓"
   },
   ar:{
@@ -716,7 +694,7 @@ const T = {
     "t-agent-label":"موظف ATG","agent-ph":"اسمك",
     "t-save":"✓ حفظ",
     "t-suc-title":"تم حفظ التقرير","t-suc-home":"🏠 القائمة","t-suc-new":"+ زيارة جديدة","t-suc-xl":"📊 Excel",
-    "loc-searching":"جارٍ تحديد الموقع...","loc-error":"خطأ في تحديد الموقع","loc-success":"تم تسجيل الموقع ✓",
+    "t-or-manual":"أو إدخال يدوي","t-lat-label":"خط العرض (Lat)","t-lng-label":"خط الطول (Lng)","loc-searching":"جارٍ تحديد الموقع...","loc-error":"خطأ في تحديد الموقع","loc-success":"تم تسجيل الموقع ✓",
     "copied":"تم النسخ ✓"
   },
   en:{
@@ -775,7 +753,7 @@ const T = {
     "t-agent-label":"ATG Agent","agent-ph":"Your name",
     "t-save":"✓ Save Report",
     "t-suc-title":"Report Saved","t-suc-home":"🏠 List","t-suc-new":"+ New Visit","t-suc-xl":"📊 Excel",
-    "loc-searching":"Getting location...","loc-error":"Location error","loc-success":"Location saved ✓",
+    "t-or-manual":"Or enter manually","t-lat-label":"Latitude (Lat)","t-lng-label":"Longitude (Lng)","loc-searching":"Getting location...","loc-error":"Location error","loc-success":"Location saved ✓",
     "copied":"Copied ✓"
   }
 };
@@ -876,6 +854,24 @@ function getLocation() {
     status.textContent = t["loc-error"] + ": " + err.message;
     btn.disabled = false;
   }, {enableHighAccuracy: true, timeout: 15000});
+}
+
+function applyManualGPS() {
+  const latEl = document.getElementById("manual-lat");
+  const lngEl = document.getElementById("manual-lng");
+  const lat = parseFloat(latEl.value);
+  const lng = parseFloat(lngEl.value);
+  if (isNaN(lat) || isNaN(lng)) return;
+  if (lat < -90 || lat > 90 || lng < -180 || lng > 180) return;
+  const latStr = lat.toFixed(6);
+  const lngStr = lng.toFixed(6);
+  gpsData = { lat: latStr, lng: lngStr, acc: "manual" };
+  const gmapUrl = "https://www.google.com/maps?q=" + latStr + "," + lngStr;
+  document.getElementById("loc-coords").textContent = latStr + ", " + lngStr + "  (manual)";
+  const link = document.getElementById("loc-gmap-link");
+  link.href = gmapUrl;
+  document.getElementById("loc-result").classList.add("show");
+  document.getElementById("loc-status").textContent = T[lang]["loc-success"] || "✓ ثبت شد";
 }
 
 function copyCoords() {
@@ -1059,6 +1055,8 @@ function startNew() {
   const ds = document.getElementById("district-select");
   if(ds) { ds.innerHTML = '<option value="">— انتخاب محله —</option>'; selCityDrop("nizwa"); }
   document.getElementById("loc-result").classList.remove("show");
+  const mLat = document.getElementById("manual-lat"); if(mLat) mLat.value = "";
+  const mLng = document.getElementById("manual-lng"); if(mLng) mLng.value = "";
   document.getElementById("loc-status").textContent = "";
   for (let i = 2; i <= 6; i++) document.getElementById("s" + i).style.display = "none";
   document.getElementById("s1").style.display = "block";
@@ -1166,67 +1164,5 @@ function exportGeoJSON() {
 setLang("fa");
 renderList();
 </script>
-
-<script>
-// ── ATG AUTH GUARD — Supabase ──
-const SB_URL = 'https://spvkshylftshggunpnoa.supabase.co';
-const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNwdmtzaHlsZnRzaGdndW5wbm9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5NjUwNjYsImV4cCI6MjA5NTU0MTA2Nn0.uRwk5kuXTej6HLQWSmqiQljyzCAL7K7qATz2lHEpZww';
-const ATG_SESSION = 'atg_session';
-
-// بررسی session فعال
-(function checkSession() {
-  try {
-    const sess = JSON.parse(sessionStorage.getItem(ATG_SESSION) || 'null');
-    if (sess && sess.username) {
-      document.getElementById('auth-guard').classList.remove('show');
-      return;
-    }
-  } catch(e) {}
-})();
-
-async function guardLogin() {
-  const un = document.getElementById('g-user').value.trim();
-  const pw = document.getElementById('g-pass').value.trim();
-  if (!un || !pw) return;
-
-  const btn = document.querySelector('.guard-btn');
-  btn.textContent = 'Signing in...';
-  btn.disabled = true;
-
-  try {
-    const res = await fetch(
-      SB_URL + `/rest/v1/atg_users?username=eq.${encodeURIComponent(un)}&password=eq.${encodeURIComponent(pw)}&select=*`,
-      {
-        headers: {
-          'apikey': SB_KEY,
-          'Authorization': 'Bearer ' + SB_KEY
-        }
-      }
-    );
-    const users = await res.json();
-
-    if (!users.length) {
-      document.getElementById('g-err').classList.add('show');
-      btn.textContent = '→ Sign In';
-      btn.disabled = false;
-      return;
-    }
-
-    const user = users[0];
-    sessionStorage.setItem(ATG_SESSION, JSON.stringify({
-      id: user.id, name: user.name,
-      username: user.username, role: user.role
-    }));
-    document.getElementById('auth-guard').classList.remove('show');
-
-  } catch(e) {
-    document.getElementById('g-err').textContent = 'Connection error. Try again.';
-    document.getElementById('g-err').classList.add('show');
-    btn.textContent = '→ Sign In';
-    btn.disabled = false;
-  }
-}
-</script>
-
 </body>
 </html>
