@@ -21,6 +21,209 @@
       --white: #EEF2F8;
       --text-muted: #7A90B0;
     }
+
+    /* LOGIN BUTTON & MODAL */
+    .btn-login {
+      background: transparent;
+      color: var(--gold);
+      border: 0.5px solid var(--gold);
+      padding: 7px 18px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+      letter-spacing: 0.5px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-login:hover { background: var(--gold); color: var(--black); }
+
+    /* MODAL OVERLAY */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(4,13,26,0.85);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(4px);
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: var(--black-2);
+      border: 0.5px solid var(--gold-dark);
+      width: 100%;
+      max-width: 400px;
+      padding: 2.5rem 2rem;
+      position: relative;
+    }
+    .modal-close {
+      position: absolute;
+      top: 1rem; right: 1rem;
+      background: none; border: none;
+      color: var(--text-muted);
+      font-size: 20px; cursor: pointer;
+    }
+    .modal-close:hover { color: var(--gold); }
+    .modal-logo {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 1.8rem;
+    }
+    .modal-logo-icon {
+      width: 34px; height: 34px;
+      border: 1.5px solid var(--gold);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; color: var(--gold);
+    }
+    .modal-title { font-size: 18px; font-weight: 500; color: var(--white); margin-bottom: 0.3rem; }
+    .modal-sub { font-size: 11px; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; }
+    .modal-field { margin-bottom: 1.2rem; }
+    .modal-field label {
+      display: block;
+      font-size: 11px; font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 6px;
+    }
+    .modal-field input {
+      width: 100%;
+      padding: 10px 14px;
+      background: var(--black-3);
+      border: 0.5px solid var(--black-4);
+      color: var(--white);
+      font-size: 13px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+      direction: ltr;
+    }
+    .modal-field input:focus { border-color: var(--gold); }
+    .modal-err {
+      font-size: 12px;
+      color: #e05a5a;
+      margin-bottom: 1rem;
+      display: none;
+      padding: 8px 12px;
+      background: rgba(224,90,90,0.08);
+      border: 0.5px solid rgba(224,90,90,0.3);
+    }
+    .modal-err.show { display: block; }
+    .btn-login-submit {
+      width: 100%;
+      background: var(--gold);
+      color: var(--black);
+      border: none;
+      padding: 11px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      transition: background 0.2s;
+      margin-top: 0.5rem;
+    }
+    .btn-login-submit:hover { background: var(--gold-light); }
+
+    /* ADMIN PANEL */
+    .admin-panel {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: var(--black);
+      z-index: 2000;
+      overflow-y: auto;
+      padding: 2rem;
+    }
+    .admin-panel.open { display: block; }
+    .admin-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 0.5px solid var(--black-4);
+    }
+    .admin-title { font-size: 20px; font-weight: 500; color: var(--white); }
+    .admin-title span { color: var(--gold); }
+    .btn-close-admin {
+      background: transparent; border: 0.5px solid var(--gold-dark);
+      color: var(--gold); padding: 7px 16px; cursor: pointer;
+      font-family: inherit; font-size: 12px;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .users-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .user-card {
+      background: var(--black-2);
+      border: 0.5px solid var(--black-4);
+      padding: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .user-card-info .u-name { font-size: 14px; font-weight: 600; color: var(--white); }
+    .user-card-info .u-role {
+      font-size: 10px; color: var(--gold);
+      text-transform: uppercase; letter-spacing: 1px; margin-top: 3px;
+    }
+    .user-card-info .u-un { font-size: 11px; color: var(--text-muted); margin-top: 2px; direction: ltr; }
+    .btn-del-user {
+      background: transparent;
+      border: 0.5px solid rgba(224,90,90,0.4);
+      color: #e05a5a; width: 28px; height: 28px;
+      cursor: pointer; font-size: 14px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .btn-del-user:hover { background: rgba(224,90,90,0.1); }
+    .add-user-form {
+      background: var(--black-2);
+      border: 0.5px solid var(--black-4);
+      padding: 1.5rem;
+      max-width: 480px;
+    }
+    .add-user-form h3 {
+      font-size: 14px; font-weight: 600;
+      color: var(--white); margin-bottom: 1.2rem;
+    }
+    .add-user-form h3 span { color: var(--gold); }
+    .add-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+    .add-form-field label {
+      display: block; font-size: 11px; font-weight: 600;
+      color: var(--text-muted); text-transform: uppercase;
+      letter-spacing: 0.05em; margin-bottom: 5px;
+    }
+    .add-form-field input, .add-form-field select {
+      width: 100%; padding: 9px 12px;
+      background: var(--black-3);
+      border: 0.5px solid var(--black-4);
+      color: var(--white); font-size: 13px;
+      font-family: inherit; outline: none;
+      direction: ltr;
+    }
+    .add-form-field input:focus, .add-form-field select:focus { border-color: var(--gold); }
+    .add-form-field select option { background: var(--black-3); }
+    .btn-add-user {
+      background: var(--gold); color: var(--black);
+      border: none; padding: 9px 22px;
+      font-size: 12px; font-weight: 700;
+      cursor: pointer; font-family: inherit;
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .btn-add-user:hover { background: var(--gold-light); }
+    .add-user-msg { font-size: 12px; margin-top: 10px; display: none; }
+    .add-user-msg.ok { color: #5dca8a; display: block; }
+    .add-user-msg.err { color: #e05a5a; display: block; }
+
     html { scroll-behavior: smooth; }
     body {
       background: var(--black);
@@ -352,8 +555,72 @@
       <button id="btn-ar" onclick="setLang('ar')">AR</button>
     </div>
     <button class="btn-nav" id="nav-cta" onclick="goTo('contact')">Get in Touch</button>
+    <button class="btn-login" onclick="openLogin()">&#128274; Member Login</button>
   </div>
 </nav>
+
+<!-- LOGIN MODAL -->
+<div class="modal-overlay" id="login-modal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeLogin()">&#10005;</button>
+    <div class="modal-logo">
+      <div class="modal-logo-icon">ATG</div>
+      <div>
+        <div class="modal-title">Member Portal</div>
+        <div class="modal-sub">Advanced Trading Gateways</div>
+      </div>
+    </div>
+    <div class="modal-field">
+      <label>Username</label>
+      <input type="text" id="login-user" placeholder="Enter username" autocomplete="username" />
+    </div>
+    <div class="modal-field">
+      <label>Password</label>
+      <input type="password" id="login-pass" placeholder="Enter password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()" />
+    </div>
+    <div class="modal-err" id="login-err">Invalid username or password.</div>
+    <button class="btn-login-submit" onclick="doLogin()">&#8594; Sign In</button>
+  </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div class="admin-panel" id="admin-panel">
+  <div class="admin-header">
+    <div>
+      <div class="admin-title">User <span>Management</span></div>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:3px;letter-spacing:1px;text-transform:uppercase;">ATG Member Portal — Admin</div>
+    </div>
+    <button class="btn-close-admin" onclick="closeAdmin()">&#8592; Back to Site</button>
+  </div>
+  <div class="users-grid" id="users-grid"></div>
+  <div class="add-user-form">
+    <h3>Add <span>New Member</span></h3>
+    <div class="add-form-grid">
+      <div class="add-form-field">
+        <label>Full Name</label>
+        <input type="text" id="nu-name" placeholder="Name" />
+      </div>
+      <div class="add-form-field">
+        <label>Role</label>
+        <select id="nu-role">
+          <option value="agent">Field Agent</option>
+          <option value="supervisor">Supervisor</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+      <div class="add-form-field">
+        <label>Username</label>
+        <input type="text" id="nu-user" placeholder="username" />
+      </div>
+      <div class="add-form-field">
+        <label>Password</label>
+        <input type="password" id="nu-pass" placeholder="password" />
+      </div>
+    </div>
+    <button class="btn-add-user" onclick="addUser()">+ Add Member</button>
+    <div class="add-user-msg" id="add-msg"></div>
+  </div>
+</div>
 
 <!-- HERO SLIDER -->
 <div class="hero-slider" id="hs-wrap">
@@ -750,6 +1017,161 @@
 
   buildCatTags(T.en);
   buildCarousel();
+
+
+  // ── ATG AUTH SYSTEM — Supabase ──
+  const SB_URL = 'https://spvkshylftshggunpnoa.supabase.co';
+  const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNwdmtzaHlsZnRzaGdndW5wbm9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5NjUwNjYsImV4cCI6MjA5NTU0MTA2Nn0.uRwk5kuXTej6HLQWSmqiQljyzCAL7K7qATz2lHEpZww';
+
+  async function sbFetch(path, opts={}) {
+    const res = await fetch(SB_URL + '/rest/v1/' + path, {
+      headers: {
+        'apikey': SB_KEY,
+        'Authorization': 'Bearer ' + SB_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': opts.prefer || ''
+      },
+      ...opts
+    });
+    return res;
+  }
+
+  // MODAL
+  function openLogin() {
+    document.getElementById('login-modal').classList.add('open');
+    document.getElementById('login-user').focus();
+  }
+  function closeLogin() {
+    document.getElementById('login-modal').classList.remove('open');
+    document.getElementById('login-err').classList.remove('show');
+    document.getElementById('login-user').value = '';
+    document.getElementById('login-pass').value = '';
+  }
+  document.getElementById('login-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeLogin();
+  });
+
+  // LOGIN
+  async function doLogin() {
+    const un = document.getElementById('login-user').value.trim();
+    const pw = document.getElementById('login-pass').value.trim();
+    if (!un || !pw) return;
+
+    const submitBtn = document.querySelector('.btn-login-submit');
+    submitBtn.textContent = 'Signing in...';
+    submitBtn.disabled = true;
+
+    try {
+      const res = await sbFetch(`atg_users?username=eq.${encodeURIComponent(un)}&password=eq.${encodeURIComponent(pw)}&select=*`);
+      const users = await res.json();
+
+      if (!users.length) {
+        document.getElementById('login-err').classList.add('show');
+        submitBtn.textContent = '→ Sign In';
+        submitBtn.disabled = false;
+        return;
+      }
+
+      const user = users[0];
+      // ذخیره session
+      sessionStorage.setItem('atg_session', JSON.stringify({
+        id: user.id, name: user.name,
+        username: user.username, role: user.role
+      }));
+
+      closeLogin();
+      submitBtn.textContent = '→ Sign In';
+      submitBtn.disabled = false;
+
+      if (user.role === 'admin') {
+        openAdmin();
+      } else {
+        window.open('Point_of_sale.html', '_blank');
+      }
+    } catch(e) {
+      document.getElementById('login-err').textContent = 'Connection error. Try again.';
+      document.getElementById('login-err').classList.add('show');
+      submitBtn.textContent = '→ Sign In';
+      submitBtn.disabled = false;
+    }
+  }
+
+  // ADMIN PANEL
+  function openAdmin() {
+    document.getElementById('admin-panel').classList.add('open');
+    renderUsers();
+  }
+  function closeAdmin() {
+    document.getElementById('admin-panel').classList.remove('open');
+  }
+
+  async function renderUsers() {
+    const grid = document.getElementById('users-grid');
+    grid.innerHTML = '<p style="color:var(--text-muted);font-size:13px">Loading...</p>';
+    try {
+      const res = await sbFetch('atg_users?select=*&order=created_at.asc');
+      const users = await res.json();
+      if (!users.length) { grid.innerHTML = '<p style="color:var(--text-muted);font-size:13px">No members yet.</p>'; return; }
+      grid.innerHTML = users.map(u => `
+        <div class="user-card">
+          <div class="user-card-info">
+            <div class="u-name">${u.name}</div>
+            <div class="u-role">${u.role}</div>
+            <div class="u-un">@${u.username}</div>
+          </div>
+          ${u.username !== 'admin' ? `<button class="btn-del-user" onclick="delUser('${u.id}')" title="Remove">&#10005;</button>` : '<div style="width:28px"></div>'}
+        </div>
+      `).join('');
+    } catch(e) {
+      grid.innerHTML = '<p style="color:#e05a5a;font-size:13px">Error loading users.</p>';
+    }
+  }
+
+  async function addUser() {
+    const name = document.getElementById('nu-name').value.trim();
+    const username = document.getElementById('nu-user').value.trim();
+    const password = document.getElementById('nu-pass').value.trim();
+    const role = document.getElementById('nu-role').value;
+    const msg = document.getElementById('add-msg');
+    msg.className = 'add-user-msg';
+
+    if (!name || !username || !password) {
+      msg.textContent = 'Please fill all fields.';
+      msg.className = 'add-user-msg err'; return;
+    }
+
+    try {
+      const res = await sbFetch('atg_users', {
+        method: 'POST',
+        prefer: 'return=minimal',
+        body: JSON.stringify({ name, username, password, role })
+      });
+      if (res.status === 201) {
+        document.getElementById('nu-name').value = '';
+        document.getElementById('nu-user').value = '';
+        document.getElementById('nu-pass').value = '';
+        msg.textContent = `Member "${name}" added successfully.`;
+        msg.className = 'add-user-msg ok';
+        renderUsers();
+      } else if (res.status === 409) {
+        msg.textContent = 'Username already exists.';
+        msg.className = 'add-user-msg err';
+      } else {
+        msg.textContent = 'Error adding user.';
+        msg.className = 'add-user-msg err';
+      }
+    } catch(e) {
+      msg.textContent = 'Connection error.';
+      msg.className = 'add-user-msg err';
+    }
+  }
+
+  async function delUser(id) {
+    if (!confirm('Remove this member?')) return;
+    await sbFetch(`atg_users?id=eq.${id}`, { method: 'DELETE' });
+    renderUsers();
+  }
+
 </script>
 </body>
 </html>
