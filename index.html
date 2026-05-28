@@ -224,6 +224,107 @@
     .add-user-msg.ok { color: #5dca8a; display: block; }
     .add-user-msg.err { color: #e05a5a; display: block; }
 
+
+    /* APP SELECTION MENU */
+    .app-menu-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(4,13,26,0.92);
+      z-index: 1100;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(6px);
+    }
+    .app-menu-overlay.open { display: flex; }
+    .app-menu-box {
+      background: var(--black-2);
+      border: 0.5px solid var(--gold-dark);
+      width: 100%;
+      max-width: 480px;
+      padding: 2rem;
+      position: relative;
+    }
+    .app-menu-close {
+      position: absolute; top: 1rem; right: 1rem;
+      background: none; border: none;
+      color: var(--text-muted); font-size: 20px; cursor: pointer;
+    }
+    .app-menu-close:hover { color: var(--gold); }
+    .app-menu-header { margin-bottom: 1.8rem; }
+    .app-menu-user {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 1.2rem;
+      padding-bottom: 1.2rem;
+      border-bottom: 0.5px solid var(--black-4);
+    }
+    .app-menu-avatar {
+      width: 40px; height: 40px;
+      background: var(--gold);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; font-weight: 700; color: var(--black);
+      flex-shrink: 0;
+    }
+    .app-menu-uname { font-size: 14px; font-weight: 600; color: var(--white); }
+    .app-menu-role {
+      font-size: 10px; color: var(--gold);
+      text-transform: uppercase; letter-spacing: 1px; margin-top: 2px;
+    }
+    .app-menu-title {
+      font-size: 11px; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 1.5px;
+      margin-bottom: 1rem;
+    }
+    .app-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .app-card {
+      background: var(--black-3);
+      border: 0.5px solid var(--black-4);
+      padding: 1.4rem 1rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: block;
+    }
+    .app-card:hover {
+      border-color: var(--gold);
+      background: rgba(201,168,76,0.06);
+      transform: translateY(-2px);
+    }
+    .app-card-icon {
+      font-size: 28px; margin-bottom: 10px;
+      display: block;
+    }
+    .app-card-name {
+      font-size: 13px; font-weight: 600;
+      color: var(--white); margin-bottom: 4px;
+    }
+    .app-card-desc {
+      font-size: 10px; color: var(--text-muted);
+      line-height: 1.5;
+    }
+    .app-card.admin-card {
+      grid-column: 1 / -1;
+      display: flex; align-items: center; gap: 14px;
+      text-align: left; padding: 1rem 1.2rem;
+      border-color: rgba(201,168,76,0.3);
+    }
+    .app-card.admin-card:hover { border-color: var(--gold); }
+    .app-card.admin-card .app-card-icon { font-size: 22px; margin: 0; flex-shrink: 0; }
+    .app-menu-logout {
+      margin-top: 1.2rem;
+      padding-top: 1rem;
+      border-top: 0.5px solid var(--black-4);
+      text-align: center;
+    }
+    .btn-logout {
+      background: none; border: 0.5px solid rgba(224,90,90,0.3);
+      color: #e05a5a; padding: 6px 18px; cursor: pointer;
+      font-family: inherit; font-size: 12px; border-radius: 2px;
+    }
+    .btn-logout:hover { background: rgba(224,90,90,0.08); }
+
     html { scroll-behavior: smooth; }
     body {
       background: var(--black);
@@ -580,6 +681,28 @@
     </div>
     <div class="modal-err" id="login-err">Invalid username or password.</div>
     <button class="btn-login-submit" onclick="doLogin()">&#8594; Sign In</button>
+  </div>
+</div>
+
+
+<!-- APP SELECTION MENU -->
+<div class="app-menu-overlay" id="app-menu">
+  <div class="app-menu-box">
+    <button class="app-menu-close" onclick="closeAppMenu()">&#10005;</button>
+    <div class="app-menu-user">
+      <div class="app-menu-avatar" id="am-avatar">U</div>
+      <div>
+        <div class="app-menu-uname" id="am-name">User</div>
+        <div class="app-menu-role" id="am-role">Field Agent</div>
+      </div>
+    </div>
+    <div class="app-menu-title">Select Application</div>
+    <div class="app-cards" id="am-cards">
+      <!-- کارت‌ها از JS رندر می‌شن -->
+    </div>
+    <div class="app-menu-logout">
+      <button class="btn-logout" onclick="doLogout()">&#8594; Sign Out</button>
+    </div>
   </div>
 </div>
 
@@ -1050,6 +1173,9 @@
   document.getElementById('login-modal').addEventListener('click', function(e) {
     if (e.target === this) closeLogin();
   });
+  document.getElementById('app-menu').addEventListener('click', function(e) {
+    if (e.target === this) closeAppMenu();
+  });
 
   // LOGIN
   async function doLogin() {
@@ -1083,17 +1209,66 @@
       submitBtn.textContent = '→ Sign In';
       submitBtn.disabled = false;
 
-      if (user.role === 'admin') {
-        openAdmin();
-      } else {
-        window.open('Point_of_sale.html', '_blank');
-      }
+      openAppMenu(user);
     } catch(e) {
       document.getElementById('login-err').textContent = 'Connection error. Try again.';
       document.getElementById('login-err').classList.add('show');
       submitBtn.textContent = '→ Sign In';
       submitBtn.disabled = false;
     }
+  }
+
+  // APP MENU
+  function openAppMenu(user) {
+    const menu = document.getElementById('app-menu');
+    // نمایش اطلاعات کاربر
+    const initial = (user.name || user.username || 'U')[0].toUpperCase();
+    document.getElementById('am-avatar').textContent = initial;
+    document.getElementById('am-name').textContent = user.name || user.username;
+    document.getElementById('am-role').textContent = user.role === 'admin' ? 'Administrator' : user.role === 'supervisor' ? 'Supervisor' : 'Field Agent';
+
+    // ساخت کارت‌ها بر اساس نقش
+    const cards = document.getElementById('am-cards');
+    let html = '';
+
+    // همه می‌توانند این دو را ببینند
+    html += `
+      <a class="app-card" href="Point_of_sale.html" target="_blank">
+        <span class="app-card-icon">📋</span>
+        <div class="app-card-name">Field Research</div>
+        <div class="app-card-desc">ثبت بازدید میدانی<br>و تحقیقات بازار</div>
+      </a>
+      <a class="app-card" href="atg_route_optimizer.html" target="_blank">
+        <span class="app-card-icon">🗺️</span>
+        <div class="app-card-name">Route Optimizer</div>
+        <div class="app-card-desc">برنامه‌ریزی مسیر<br>توزیع و تحویل</div>
+      </a>
+    `;
+
+    // فقط admin پنل مدیریت دارد
+    if (user.role === 'admin') {
+      html += `
+        <div class="app-card admin-card" onclick="closeAppMenu();openAdmin()">
+          <span class="app-card-icon">⚙️</span>
+          <div>
+            <div class="app-card-name">User Management</div>
+            <div class="app-card-desc">مدیریت کاربران و دسترسی‌ها</div>
+          </div>
+        </div>
+      `;
+    }
+
+    cards.innerHTML = html;
+    menu.classList.add('open');
+  }
+
+  function closeAppMenu() {
+    document.getElementById('app-menu').classList.remove('open');
+  }
+
+  function doLogout() {
+    try { sessionStorage.removeItem('atg_session'); } catch(e) {}
+    closeAppMenu();
   }
 
   // ADMIN PANEL
