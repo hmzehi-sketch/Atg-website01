@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
@@ -860,13 +861,21 @@
       </a>
     </div>
     <div>
-      <div class="contact-form">
-        <input type="text" id="cf-name" placeholder="Your Name / اسمك" />
-        <input type="text" id="cf-company" placeholder="Company / الشركة" />
-        <input type="email" id="cf-email" placeholder="Email / البريد الإلكتروني" />
-        <textarea rows="4" id="cf-msg" placeholder="Message / الرسالة"></textarea>
-        <button class="btn-primary" id="cf-submit" style="padding:12px;width:100%;">Send Message ↗</button>
-      </div>
+      <form class="contact-form" name="atg-contact" method="POST" data-netlify="true" netlify-honeypot="bot-field" onsubmit="handleContactSubmit(event)">
+        <input type="hidden" name="form-name" value="atg-contact" />
+        <input type="hidden" name="bot-field" style="display:none" />
+        <input type="text" name="name" id="cf-name" placeholder="Your Name / اسمك" required />
+        <input type="text" name="company" id="cf-company" placeholder="Company / الشركة" />
+        <input type="email" name="email" id="cf-email" placeholder="Email / البريد الإلكتروني" required />
+        <textarea rows="4" name="message" id="cf-msg" placeholder="Message / الرسالة" required></textarea>
+        <button type="submit" class="btn-primary" id="cf-submit" style="padding:12px;width:100%;">Send Message ↗</button>
+        <div id="cf-success" style="display:none;padding:12px;background:rgba(13,110,74,0.15);border:0.5px solid #1D9E75;color:#1D9E75;font-size:13px;text-align:center;">
+          ✅ Message sent! We'll get back to you soon.
+        </div>
+        <div id="cf-error" style="display:none;padding:12px;background:rgba(224,90,90,0.1);border:0.5px solid #e05a5a;color:#e05a5a;font-size:13px;text-align:center;">
+          ❌ Something went wrong. Please try again.
+        </div>
+      </form>
     </div>
   </div>
 </section>
@@ -1348,6 +1357,39 @@
     renderUsers();
   }
 
+
+  // ── CONTACT FORM ──
+  async function handleContactSubmit(e) {
+    e.preventDefault();
+    const btn = document.getElementById('cf-submit');
+    const success = document.getElementById('cf-success');
+    const error = document.getElementById('cf-error');
+    btn.textContent = 'Sending...';
+    btn.disabled = true;
+    success.style.display = 'none';
+    error.style.display = 'none';
+
+    const form = e.target;
+    const data = new FormData(form);
+
+    try {
+      const res = await fetch('/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(data).toString()
+      });
+      if (res.ok) {
+        success.style.display = 'block';
+        form.reset();
+      } else {
+        error.style.display = 'block';
+      }
+    } catch(err) {
+      error.style.display = 'block';
+    }
+    btn.textContent = 'Send Message ↗';
+    btn.disabled = false;
+  }
 </script>
 </body>
 </html>
