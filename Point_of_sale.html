@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
@@ -251,7 +252,14 @@ body{font-family:"Segoe UI",Tahoma,Arial,sans-serif;background:var(--atg-off);co
     <div class="card">
       <div class="ch"><div class="ci">📍</div><div><div class="ct" id="t-s1-title">اطلاعات پایه</div><div class="cs" id="t-s1-sub">شهر · زمان · موقعیت</div></div></div>
       <div class="cb">
-        <div class="f" id="t-city-label-wrap"><label id="t-city-label">شهر <span class="req">*</span></label>
+        <div class="f" id="t-city-label-wrap">
+          <label id="t-country-label" style="display:block;font-size:11px;font-weight:600;color:var(--atg-muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px">کشور <span class="req">*</span></label>
+          <select id="country-select" onchange="selCountryDrop(this.value)" style="width:100%;padding:9px 11px;border:1.5px solid var(--atg-border);border-radius:8px;font-size:13px;color:var(--atg-text);background:#fff;font-family:inherit;outline:none;cursor:pointer;margin-bottom:10px">
+            <option value="oman" selected>🇴🇲 عمان — Oman</option>
+            <option value="uae">🇦🇪 امارات — UAE</option>
+            <option value="canada">🇨🇦 کانادا — Canada</option>
+          </select>
+          <label id="t-city-label" style="display:block;font-size:11px;font-weight:600;color:var(--atg-muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px">شهر <span class="req">*</span></label>
           <select id="city-select" onchange="selCityDrop(this.value)" style="width:100%;padding:9px 11px;border:1.5px solid var(--atg-border);border-radius:8px;font-size:13px;color:var(--atg-text);background:#fff;font-family:inherit;outline:none;cursor:pointer">
             <option value="muscat">مسقط — Muscat</option>
             <option value="seeb">سیب — Seeb</option>
@@ -758,6 +766,64 @@ const T = {
   }
 };
 
+const CITIES_BY_COUNTRY = {
+  oman: [
+    {v:"muscat",l:"مسقط — Muscat"},
+    {v:"seeb",l:"سیب — Seeb"},
+    {v:"nizwa",l:"نزوی — Nizwa"},
+    {v:"sohar",l:"صحار — Sohar"},
+    {v:"salalah",l:"صلاله — Salalah"},
+    {v:"sur",l:"صور — Sur"},
+    {v:"barka",l:"بارکا — Barka"},
+    {v:"rustaq",l:"رستاق — Rustaq"},
+    {v:"bahla",l:"بهلاء — Bahla"},
+    {v:"ibri",l:"عبری — Ibri"},
+    {v:"izki",l:"ایزکی — Izki"},
+    {v:"samail",l:"سمائل — Samail"},
+    {v:"suwaiq",l:"السویق — Al Suwaiq"},
+    {v:"saham",l:"سهام — Saham"},
+    {v:"khasab",l:"خصب — Khasab"},
+    {v:"duqm",l:"الدقم — Duqm"},
+    {v:"haima",l:"هیما — Haima"},
+    {v:"ibra",l:"ابراء — Ibra"},
+    {v:"sinaw",l:"سناو — Sinaw"},
+    {v:"other_om",l:"سایر عمان — Other Oman"}
+  ],
+  uae: [
+    {v:"dubai",l:"دبی — Dubai"},
+    {v:"abudhabi",l:"ابوظبی — Abu Dhabi"},
+    {v:"sharjah",l:"شارجه — Sharjah"},
+    {v:"ajman",l:"عجمان — Ajman"},
+    {v:"rak",l:"رأس الخیمه — Ras Al Khaimah"},
+    {v:"fujairah",l:"فجیره — Fujairah"},
+    {v:"uaq",l:"ام القیوین — Umm Al Quwain"},
+    {v:"alain",l:"العین — Al Ain"},
+    {v:"other_ae",l:"سایر امارات — Other UAE"}
+  ],
+  canada: [
+    {v:"toronto",l:"تورنتو — Toronto"},
+    {v:"vancouver",l:"ونکوور — Vancouver"},
+    {v:"montreal",l:"مونترال — Montreal"},
+    {v:"calgary",l:"کالگری — Calgary"},
+    {v:"ottawa",l:"اوتاوا — Ottawa"},
+    {v:"edmonton",l:"ادمونتون — Edmonton"},
+    {v:"winnipeg",l:"وینیپگ — Winnipeg"},
+    {v:"quebec",l:"کبک — Quebec City"},
+    {v:"hamilton",l:"هامیلتون — Hamilton"},
+    {v:"other_ca",l:"سایر کانادا — Other Canada"}
+  ]
+};
+
+function selCountryDrop(countryVal) {
+  const cs = document.getElementById("city-select");
+  const ds = document.getElementById("district-select");
+  if (!cs) return;
+  const cities = CITIES_BY_COUNTRY[countryVal] || [];
+  cs.innerHTML = cities.map(c => '<option value="' + c.v + '">' + c.l + '</option>').join('');
+  city = cities.length ? cities[0].v : countryVal;
+  if (ds) { ds.innerHTML = '<option value="">— انتخاب محله —</option>'; selCityDrop(city); }
+}
+
 const DISTRICTS = {
   "muscat": ['مطرح — Mutrah', 'روی — Ruwi', 'قريات — Qurayyat', 'بوشر — Bausher', 'العامرات — Al Amerat', 'السيب — Seeb', 'مسقط القديمة — Old Muscat'],
   "seeb": ['السيب المركز — Seeb Centre', 'الخوض — Al Khoudh', 'مصفح — Masfah', 'العوابي — Al Awabi', 'النهضة — Al Nahda'],
@@ -1091,6 +1157,8 @@ function startNew() {
   document.querySelectorAll(".cbtn").forEach(b => b.classList.remove("sel"));
   const cs = document.getElementById("city-select");
   if(cs) cs.value = "nizwa";
+  const co = document.getElementById("country-select");
+  if(co) co.value = "oman";
   const ds = document.getElementById("district-select");
   if(ds) { ds.innerHTML = '<option value="">— انتخاب محله —</option>'; selCityDrop("nizwa"); }
   document.getElementById("loc-result").classList.remove("show");
