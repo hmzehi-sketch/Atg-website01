@@ -1334,11 +1334,20 @@
   }
 
   async function toggleRdAccess(id, value) {
-    await sbFetch(`atg_users?id=eq.${id}`, {
-      method: 'PATCH',
-      prefer: 'return=minimal',
-      body: JSON.stringify({ rd_access: value })
-    });
+    try {
+      await fetch(SB_URL + '/rest/v1/atg_users?id=eq.' + id, {
+        method: 'PATCH',
+        headers: {
+          'apikey': SB_KEY,
+          'Authorization': 'Bearer ' + SB_KEY,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({ rd_access: value })
+      });
+    } catch(e) {
+      console.error('toggleRdAccess error:', e);
+    }
   }
 
   async function addUser() {
