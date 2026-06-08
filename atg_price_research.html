@@ -832,6 +832,34 @@ function calcPrices(){
   } else { box.style.display='none'; }
 }
 
+// ── SUPABASE ───────────────────────────────────────────────────
+const SB_URL = 'https://spvkshylftshggunpnoa.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNwdmtzaHlsZnRzaGdndW5wbm9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5NjUwNjYsImV4cCI6MjA5NTU0MTA2Nn0.uRwk5kuXTej6HLQWSmqiQljyzCAL7K7qATz2lHEpZww';
+
+async function sbPost(data){
+  const res = await fetch(SB_URL + '/rest/v1/atg_price_research', {
+    method: 'POST',
+    headers: {
+      'apikey': SB_KEY,
+      'Authorization': 'Bearer ' + SB_KEY,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=minimal'
+    },
+    body: JSON.stringify(data)
+  });
+  return res;
+}
+
+async function sbLoad(){
+  const res = await fetch(SB_URL + '/rest/v1/atg_price_research?select=*&order=created_at.desc', {
+    headers: {
+      'apikey': SB_KEY,
+      'Authorization': 'Bearer ' + SB_KEY
+    }
+  });
+  return res.ok ? await res.json() : [];
+}
+
 // ── PHOTO ──────────────────────────────────────────────────────
 function handlePhoto(input){
   const file = input.files[0]; if(!file) return;
@@ -844,22 +872,68 @@ function handlePhoto(input){
 }
 
 // ── SUBMIT ─────────────────────────────────────────────────────
-function submitRecord(){
+async function submitRecord(){
   if(!F.store){ showToast(T('toast_store')); return; }
   if(!F.product){ showToast(T('toast_product')); return; }
   if(!F.brand){ showToast(T('toast_brand')); return; }
   if(!F.retail){ showToast(T('toast_retail')); return; }
+
   const retail=parseFloat(F.retail)||0, wholesale=parseFloat(F.wholesale)||0;
   const carton=parseInt(F.carton)||0, size=parseFloat(F.size)||0, supplier=parseFloat(F.supplier)||0;
-  records.push({
-    ...F,
-    perUnit: carton>0&&wholesale>0 ? (wholesale/carton).toFixed(3) : '',
-    perKg: size>0&&retail>0 ? (retail/size).toFixed(4) : '',
-    margin: supplier>0&&retail>0 ? (((retail-supplier)/retail)*100).toFixed(1)+'%' : '',
-    id: Date.now()
-  });
-  renderTable();
-  showToast(T('toast_saved'));
+
+  const rec = {
+    visit_date: F.date,
+    visit_time: F.time,
+    country: F.country,
+    city: F.city,
+    store: F.store,
+    store_type: F.storeType,
+    visitor: F.visitor,
+    product: F.product,
+    brand: F.brand,
+    origin: F.origin,
+    size: F.size + (F.unit ? ' ' + F.unit : ''),
+    unit: F.unit,
+    carton: F.carton,
+    label_lang: F.labelLang,
+    retail: retail || null,
+    wholesale: wholesale || null,
+    supplier_price: supplier || null,
+    promo: F.promo,
+    shelf_position: F.shelf,
+    shelf_rows: F.rows,
+    demand: F.demand,
+    stock: F.stock,
+    opportunity_score: F.score || null,
+    importer: F.importer,
+    phone: F.phone,
+    notes: F.notes,
+    decision: F.decision,
+    priority: F.priority,
+    followup_date: F.followup
+  };
+
+  const btn = document.querySelector('.btn-submit');
+  btn.textContent = '⏳ ...';
+  btn.disabled = true;
+
+  try {
+    const res = await sbPost(rec);
+    if(res.status === 201 || res.ok){
+      showToast(T('toast_saved'));
+      await loadRecords();
+    } else {
+      const err = await res.text();
+      showToast('❌ Error: ' + err.substring(0,60));
+    }
+  } catch(e) {
+    showToast('❌ Connection error');
+  }
+
+  btn.textContent = T('btn_submit');
+  btn.disabled = false;
+
+  // reset form
   F = resetForm();
   setCountry(currentCountry);
   ['inp-store','inp-brand','inp-origin','inp-retail','inp-wholesale','inp-supplier',
@@ -875,6 +949,37 @@ function submitRecord(){
   document.getElementById('photo-preview').innerHTML='📷';
   document.getElementById('calc-box').style.display='none';
   document.getElementById('product-custom-wrap').style.display='none';
+}
+
+// ── LOAD FROM SUPABASE ─────────────────────────────────────────
+async function loadRecords(){
+  const body = document.getElementById('rec-body');
+  body.innerHTML = `<div class="empty-state"><div class="ei">⏳</div>Loading...</div>`;
+  try {
+    const rows = await sbLoad();
+    records = rows.map(r=>({
+      date: r.visit_date, time: r.visit_time,
+      country: r.country, city: r.city,
+      store: r.store, storeType: r.store_type,
+      visitor: r.visitor, product: r.product,
+      brand: r.brand, origin: r.origin,
+      size: r.size, unit: r.unit, carton: r.carton,
+      labelLang: r.label_lang,
+      retail: r.retail, wholesale: r.wholesale, supplier: r.supplier_price,
+      perUnit: r.retail && r.carton ? (r.retail / parseInt(r.carton)).toFixed(3) : '',
+      perKg: '',
+      promo: r.promo,
+      shelf: r.shelf_position, rows: r.shelf_rows,
+      demand: r.demand, stock: r.stock, score: r.opportunity_score,
+      importer: r.importer, phone: r.phone,
+      notes: r.notes, decision: r.decision,
+      priority: r.priority, followup: r.followup_date,
+      id: r.id
+    }));
+    renderTable();
+  } catch(e){
+    body.innerHTML = `<div class="empty-state"><div class="ei">❌</div>Error loading records</div>`;
+  }
 }
 
 // ── TABLE ──────────────────────────────────────────────────────
@@ -938,6 +1043,7 @@ function showToast(msg){
 
 // Init lang
 setLang('fa');
+loadRecords();
 </script>
 </body>
 </html>
