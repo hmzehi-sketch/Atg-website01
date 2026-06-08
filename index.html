@@ -1256,7 +1256,7 @@
     `;
 
     // Price Research — فقط اگر admin دسترسی داده باشد
-    if (user.rd_access || user.role === 'admin') {
+    if (user.rd_access === true || user.role === 'admin') {
       html += `
         <a class="app-card" href="atg_price_research.html" target="_blank">
           <span class="app-card-icon">📊</span>
@@ -1307,7 +1307,9 @@
     try {
       const res = await sbFetch('atg_users?select=*&order=created_at.asc');
       const users = await res.json();
-      if (!users.length) { grid.innerHTML = '<p style="color:var(--text-muted);font-size:13px">No members yet.</p>'; return; }
+      if (!Array.isArray(users) || !users.length) { grid.innerHTML = '<p style="color:var(--text-muted);font-size:13px">No members yet.</p>'; return; }
+      // rd_access ممکنه هنوز در دیتابیس نباشد — با null/undefined کنار میاییم
+      const hasRdCol = users[0].hasOwnProperty('rd_access');
       grid.innerHTML = users.map(u => `
         <div class="user-card">
           <div class="user-card-info">
@@ -1316,11 +1318,12 @@
             <div class="u-un">@${u.username}</div>
           </div>
           <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+            ${hasRdCol ? `
             <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:10px;color:var(--text-muted);font-weight:600;letter-spacing:.04em;" title="Price Research access">
               <input type="checkbox" ${u.rd_access ? 'checked' : ''} onchange="toggleRdAccess('${u.id}', this.checked)"
                 style="accent-color:var(--gold);width:14px;height:14px;cursor:pointer;"/>
               R&amp;D
-            </label>
+            </label>` : ''}
             ${u.username !== 'admin' ? `<button class="btn-del-user" onclick="delUser('${u.id}')" title="Remove">&#10005;</button>` : '<div style="width:28px"></div>'}
           </div>
         </div>
