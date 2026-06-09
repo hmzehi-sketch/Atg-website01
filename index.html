@@ -325,6 +325,38 @@
     }
     .btn-logout:hover { background: rgba(224,90,90,0.08); }
 
+    /* ADMIN TABS */
+    .admin-tab {
+      padding: 9px 20px; background: transparent;
+      border: none; border-bottom: 2px solid transparent;
+      color: var(--text-muted); font-size: 12px; font-weight: 600;
+      cursor: pointer; font-family: inherit; letter-spacing: .04em;
+      transition: all .15s;
+    }
+    .admin-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+    .admin-tab:hover { color: var(--white); }
+
+    /* REPORT SOURCE BUTTONS */
+    .report-src-btn {
+      padding: 8px 16px; border: 1.5px solid rgba(255,255,255,0.12);
+      border-radius: 20px; background: transparent;
+      color: var(--text-muted); font-size: 12px; font-weight: 600;
+      cursor: pointer; font-family: inherit; transition: all .15s;
+    }
+    .report-src-btn:hover { border-color: var(--gold); color: var(--white); }
+    .report-src-btn.active { background: var(--gold); border-color: var(--gold); color: var(--black); }
+
+    /* REPORT TABLE */
+    .rpt-table { width:100%; border-collapse:collapse; font-size:11px; }
+    .rpt-table th { background:rgba(255,255,255,0.06); color:var(--text-muted); padding:8px 10px; text-align:left; white-space:nowrap; font-weight:600; position:sticky; top:0; }
+    .rpt-table td { padding:8px 10px; border-bottom:1px solid rgba(255,255,255,0.05); color:var(--white); white-space:nowrap; }
+    .rpt-table tr:hover td { background:rgba(255,255,255,0.03); }
+
+    /* STAT CARDS */
+    .rpt-stat { background:rgba(200,150,10,0.08); border:1px solid rgba(200,150,10,0.2); border-radius:8px; padding:10px 14px; min-width:110px; }
+    .rpt-stat-val { font-size:20px; font-weight:700; color:var(--gold-light); }
+    .rpt-stat-lbl { font-size:10px; color:var(--text-muted); margin-top:2px; }
+
     html { scroll-behavior: smooth; }
     body {
       background: var(--black);
@@ -710,55 +742,111 @@
 <div class="admin-panel" id="admin-panel">
   <div class="admin-header">
     <div>
-      <div class="admin-title">User <span>Management</span></div>
+      <div class="admin-title">Admin <span>Panel</span></div>
       <div style="font-size:11px;color:var(--text-muted);margin-top:3px;letter-spacing:1px;text-transform:uppercase;">ATG Member Portal — Admin</div>
     </div>
     <button class="btn-close-admin" onclick="closeAdmin()">&#8592; Back to Site</button>
   </div>
-  <div class="users-grid" id="users-grid"></div>
-  <div class="add-user-form">
-    <h3>Add <span>New Member</span></h3>
-    <div class="add-form-grid">
-      <div class="add-form-field">
-        <label>Full Name</label>
-        <input type="text" id="nu-name" placeholder="Name" />
+
+  <!-- TABS -->
+  <div style="display:flex;gap:6px;padding:0 20px;margin-bottom:20px;border-bottom:1px solid rgba(255,255,255,0.07);padding-bottom:0;">
+    <button class="admin-tab active" id="tab-users" onclick="switchAdminTab('users')">👥 Users</button>
+    <button class="admin-tab" id="tab-reports" onclick="switchAdminTab('reports')">📊 Reports</button>
+  </div>
+
+  <!-- TAB: USERS -->
+  <div id="admin-tab-users">
+    <div class="users-grid" id="users-grid"></div>
+    <div class="add-user-form">
+      <h3>Add <span>New Member</span></h3>
+      <div class="add-form-grid">
+        <div class="add-form-field">
+          <label>Full Name</label>
+          <input type="text" id="nu-name" placeholder="Name" />
+        </div>
+        <div class="add-form-field">
+          <label>Role</label>
+          <select id="nu-role">
+            <option value="agent">Field Agent</option>
+            <option value="supervisor">Supervisor</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+        <div class="add-form-field">
+          <label>Username</label>
+          <input type="text" id="nu-user" placeholder="username" />
+        </div>
+        <div class="add-form-field">
+          <label>Password</label>
+          <input type="password" id="nu-pass" placeholder="password" />
+        </div>
       </div>
-      <div class="add-form-field">
-        <label>Role</label>
-        <select id="nu-role">
-          <option value="agent">Field Agent</option>
-          <option value="supervisor">Supervisor</option>
-          <option value="admin">Admin</option>
-        </select>
+      <div style="margin:12px 0 16px;padding:12px 14px;background:rgba(200,150,10,0.07);border:1px solid rgba(200,150,10,0.2);border-radius:8px;">
+        <div style="font-size:11px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">App Access</div>
+        <div style="display:flex;flex-wrap:wrap;gap:14px;">
+          <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:12px;color:var(--text-muted);font-weight:600;">
+            <input type="checkbox" checked disabled style="accent-color:var(--gold);width:14px;height:14px;"/>
+            📋 Field Research <span style="font-size:9px;color:var(--gold);">(default)</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:12px;color:var(--text-muted);font-weight:600;">
+            <input type="checkbox" checked disabled style="accent-color:var(--gold);width:14px;height:14px;"/>
+            🗺️ Route Optimizer <span style="font-size:9px;color:var(--gold);">(default)</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:12px;color:var(--text-muted);font-weight:600;">
+            <input type="checkbox" id="nu-rd" style="accent-color:var(--gold);width:14px;height:14px;cursor:pointer;"/>
+            📊 Price Research
+          </label>
+        </div>
       </div>
-      <div class="add-form-field">
-        <label>Username</label>
-        <input type="text" id="nu-user" placeholder="username" />
+      <button class="btn-add-user" onclick="addUser()">+ Add Member</button>
+      <div class="add-user-msg" id="add-msg"></div>
+    </div>
+  </div>
+
+  <!-- TAB: REPORTS -->
+  <div id="admin-tab-reports" style="display:none;padding:0 20px 30px;">
+
+    <!-- فرم انتخاب -->
+    <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
+      <button class="report-src-btn active" id="rsb-price" onclick="setReportSource('price',this)">📊 Price Research</button>
+      <button class="report-src-btn" id="rsb-field" onclick="setReportSource('field',this)">📋 Field Research</button>
+      <button class="report-src-btn" id="rsb-route" onclick="setReportSource('route',this)">🗺️ Route Optimizer</button>
+    </div>
+
+    <!-- فیلترها -->
+    <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:flex-end;">
+      <div style="flex:1;min-width:130px;">
+        <div style="font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px;">From</div>
+        <input type="date" id="rpt-from" style="width:100%;padding:8px 10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:7px;color:#fff;font-size:12px;font-family:inherit;"/>
       </div>
-      <div class="add-form-field">
-        <label>Password</label>
-        <input type="password" id="nu-pass" placeholder="password" />
+      <div style="flex:1;min-width:130px;">
+        <div style="font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px;">To</div>
+        <input type="date" id="rpt-to" style="width:100%;padding:8px 10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:7px;color:#fff;font-size:12px;font-family:inherit;"/>
+      </div>
+      <div style="flex:1;min-width:130px;">
+        <div style="font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px;">Visitor</div>
+        <input type="text" id="rpt-visitor" placeholder="All visitors" style="width:100%;padding:8px 10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:7px;color:#fff;font-size:12px;font-family:inherit;"/>
+      </div>
+      <button onclick="loadReport()" style="padding:8px 18px;background:var(--gold);color:var(--dark);border:none;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;">🔍 Load</button>
+    </div>
+
+    <!-- خلاصه آمار -->
+    <div id="rpt-stats" style="display:none;display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;"></div>
+
+    <!-- جدول -->
+    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;overflow:hidden;">
+      <div style="padding:11px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.07);">
+        <span style="font-size:12px;font-weight:600;color:#fff;">
+          <span id="rpt-count" style="background:var(--gold);color:var(--dark);padding:2px 8px;border-radius:10px;font-size:11px;margin-left:8px;">0</span>
+          Records
+        </span>
+        <button onclick="exportReport()" style="padding:6px 14px;background:rgba(200,150,10,0.2);border:1px solid rgba(200,150,10,0.4);color:var(--gold-light);font-size:11px;font-weight:600;border-radius:6px;cursor:pointer;font-family:inherit;">⬇ Export Excel</button>
+      </div>
+      <div id="rpt-body" style="overflow-x:auto;max-height:400px;overflow-y:auto;">
+        <div style="text-align:center;padding:32px;color:var(--text-muted);font-size:13px;">Select a source and click Load</div>
       </div>
     </div>
-    <div style="margin:12px 0 16px;padding:12px 14px;background:rgba(200,150,10,0.07);border:1px solid rgba(200,150,10,0.2);border-radius:8px;">
-      <div style="font-size:11px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">App Access</div>
-      <div style="display:flex;flex-wrap:wrap;gap:14px;">
-        <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:12px;color:var(--text-muted);font-weight:600;">
-          <input type="checkbox" checked disabled style="accent-color:var(--gold);width:14px;height:14px;"/>
-          📋 Field Research <span style="font-size:9px;color:var(--gold);">(default)</span>
-        </label>
-        <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:12px;color:var(--text-muted);font-weight:600;">
-          <input type="checkbox" checked disabled style="accent-color:var(--gold);width:14px;height:14px;"/>
-          🗺️ Route Optimizer <span style="font-size:9px;color:var(--gold);">(default)</span>
-        </label>
-        <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:12px;color:var(--text-muted);font-weight:600;">
-          <input type="checkbox" id="nu-rd" style="accent-color:var(--gold);width:14px;height:14px;cursor:pointer;"/>
-          📊 Price Research
-        </label>
-      </div>
-    </div>
-    <button class="btn-add-user" onclick="addUser()">+ Add Member</button>
-    <div class="add-user-msg" id="add-msg"></div>
+
   </div>
 </div>
 
@@ -1312,10 +1400,131 @@
   // ADMIN PANEL
   function openAdmin() {
     document.getElementById('admin-panel').classList.add('open');
+    switchAdminTab('users');
     renderUsers();
   }
   function closeAdmin() {
     document.getElementById('admin-panel').classList.remove('open');
+  }
+
+  function switchAdminTab(tab) {
+    document.getElementById('admin-tab-users').style.display  = tab === 'users'   ? '' : 'none';
+    document.getElementById('admin-tab-reports').style.display = tab === 'reports' ? '' : 'none';
+    document.querySelectorAll('.admin-tab').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + tab).classList.add('active');
+  }
+
+  // ── REPORTS ──────────────────────────────────────────────────
+  let currentReportSource = 'price';
+  let reportData = [];
+
+  const SB_URL_IDX  = 'https://spvkshylftshggunpnoa.supabase.co';
+  const SB_KEY_IDX  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNwdmtzaHlsZnRzaGdndW5wbm9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5NjUwNjYsImV4cCI6MjA5NTU0MTA2Nn0.uRwk5kuXTej6HLQWSmqiQljyzCAL7K7qATz2lHEpZww';
+
+  const REPORT_TABLES = {
+    price: 'atg_price_research',
+    field: 'atg_visits',
+    route: 'atg_visits'
+  };
+
+  const REPORT_COLS = {
+    price: ['visit_date','visitor','country','city','store','store_type','product','brand','origin','size','unit','carton','retail','wholesale','supplier_price','promo','shelf_position','demand','stock','opportunity_score','importer','phone','decision','priority','followup_date','notes'],
+    field: ['created_at','visitor_name','city','store_name','store_type','product_name','brand','shelf_status','notes'],
+    route: ['created_at','visitor_name','city','store_name','store_type','product_name','brand','shelf_status','notes']
+  };
+
+  function setReportSource(src, btn) {
+    currentReportSource = src;
+    document.querySelectorAll('.report-src-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    reportData = [];
+    document.getElementById('rpt-body').innerHTML = '<div style="text-align:center;padding:32px;color:var(--text-muted);font-size:13px;">Click Load to fetch data</div>';
+    document.getElementById('rpt-count').textContent = '0';
+    document.getElementById('rpt-stats').style.display = 'none';
+  }
+
+  async function loadReport() {
+    const body = document.getElementById('rpt-body');
+    body.innerHTML = '<div style="text-align:center;padding:32px;color:var(--text-muted);font-size:13px;">⏳ Loading...</div>';
+
+    const table = REPORT_TABLES[currentReportSource];
+    const from  = document.getElementById('rpt-from').value;
+    const to    = document.getElementById('rpt-to').value;
+    const visitor = document.getElementById('rpt-visitor').value.trim();
+
+    let url = `${SB_URL_IDX}/rest/v1/${table}?select=*&order=created_at.desc`;
+    if (from)    url += `&created_at=gte.${from}T00:00:00`;
+    if (to)      url += `&created_at=lte.${to}T23:59:59`;
+    if (visitor) {
+      const vCol = currentReportSource === 'price' ? 'visitor' : 'visitor_name';
+      url += `&${vCol}=ilike.*${encodeURIComponent(visitor)}*`;
+    }
+
+    try {
+      const res = await fetch(url, {
+        headers: { 'apikey': SB_KEY_IDX, 'Authorization': 'Bearer ' + SB_KEY_IDX }
+      });
+      reportData = await res.json();
+      if (!Array.isArray(reportData)) { reportData = []; }
+      renderReportTable();
+    } catch(e) {
+      body.innerHTML = '<div style="text-align:center;padding:32px;color:#e05a5a;font-size:13px;">❌ Error loading data</div>';
+    }
+  }
+
+  function renderReportTable() {
+    const body = document.getElementById('rpt-body');
+    document.getElementById('rpt-count').textContent = reportData.length;
+
+    if (!reportData.length) {
+      body.innerHTML = '<div style="text-align:center;padding:32px;color:var(--text-muted);font-size:13px;">No records found</div>';
+      return;
+    }
+
+    // آمار خلاصه
+    if (currentReportSource === 'price') {
+      const uniqueVisitors = [...new Set(reportData.map(r=>r.visitor).filter(Boolean))].length;
+      const uniqueStores   = [...new Set(reportData.map(r=>r.store).filter(Boolean))].length;
+      const uniqueProducts = [...new Set(reportData.map(r=>r.product).filter(Boolean))].length;
+      const stats = document.getElementById('rpt-stats');
+      stats.style.display = 'flex';
+      stats.innerHTML = `
+        <div class="rpt-stat"><div class="rpt-stat-val">${reportData.length}</div><div class="rpt-stat-lbl">Total Records</div></div>
+        <div class="rpt-stat"><div class="rpt-stat-val">${uniqueVisitors}</div><div class="rpt-stat-lbl">Visitors</div></div>
+        <div class="rpt-stat"><div class="rpt-stat-val">${uniqueStores}</div><div class="rpt-stat-lbl">Stores</div></div>
+        <div class="rpt-stat"><div class="rpt-stat-val">${uniqueProducts}</div><div class="rpt-stat-lbl">Products</div></div>
+      `;
+    }
+
+    // جدول — ستون‌ها از کلیدهای اولین رکورد
+    const cols = Object.keys(reportData[0]).filter(k => k !== 'id');
+    const ths = cols.map(c => `<th>${c}</th>`).join('');
+    const rows = reportData.map(r =>
+      '<tr>' + cols.map(c => `<td>${r[c] !== null && r[c] !== undefined ? String(r[c]).substring(0,60) : ''}</td>`).join('') + '</tr>'
+    ).join('');
+
+    body.innerHTML = `<table class="rpt-table"><thead><tr>${ths}</tr></thead><tbody>${rows}</tbody></table>`;
+  }
+
+  async function exportReport() {
+    if (!reportData.length) { alert('No data to export'); return; }
+    if (typeof XLSX === 'undefined') {
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+      s.onload = () => doExportReport();
+      document.head.appendChild(s);
+    } else { doExportReport(); }
+  }
+
+  function doExportReport() {
+    const cols = Object.keys(reportData[0]).filter(k => k !== 'id');
+    const rows = reportData.map(r => cols.map(c => r[c]));
+    const ws = XLSX.utils.aoa_to_sheet([cols, ...rows]);
+    ws['!cols'] = cols.map(() => ({ wch: 18 }));
+    const wb = XLSX.utils.book_new();
+    const sheetName = currentReportSource === 'price' ? 'Price Research' : currentReportSource === 'field' ? 'Field Research' : 'Route Visits';
+    XLSX.utils.book_append_sheet(wb, ws, sheetName);
+    XLSX.writeFile(wb, `ATG_${sheetName.replace(' ','_')}_${new Date().toISOString().slice(0,10)}.xlsx`);
   }
 
   async function renderUsers() {
