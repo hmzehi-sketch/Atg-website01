@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
@@ -883,12 +882,17 @@ function setLang(l) {
 }
 
 // ── CLOCK ──
+let _currentDate = "", _currentTime = "";
 function updateClock() {
   const now = new Date();
-  const dateStr = now.toLocaleDateString("en-CA"); // YYYY-MM-DD
+  const dateStr = now.toLocaleDateString("en-CA");
   const timeStr = now.toLocaleTimeString("en-GB", {hour:"2-digit", minute:"2-digit"});
-  document.getElementById("disp-date").textContent = dateStr;
-  document.getElementById("disp-time").textContent = timeStr;
+  _currentDate = dateStr;
+  _currentTime = timeStr;
+  const dd = document.getElementById("disp-date");
+  const dt = document.getElementById("disp-time");
+  if (dd) dd.textContent = dateStr;
+  if (dt) dt.textContent = timeStr;
 }
 // Clock auto-started
 window.addEventListener("DOMContentLoaded", function() {
@@ -1058,12 +1062,12 @@ function v(id) { const el = document.getElementById(id); return el ? el.value.tr
 
 // ── SAVE ──
 function saveRecord() {
-  if (!v("f-company") || !document.getElementById("disp-date").textContent) {
+  if (!v("f-company")) {
     alert(lang === "en" ? "Company name is required" : lang === "ar" ? "اسم الشركة مطلوب" : "نام شرکت الزامی است");
     goStep(1); return;
   }
-  const dateVal = document.getElementById("disp-date").textContent;
-  const timeVal = document.getElementById("disp-time").textContent;
+  const dateVal = _currentDate || new Date().toLocaleDateString("en-CA");
+  const timeVal = _currentTime || new Date().toLocaleTimeString("en-GB", {hour:"2-digit", minute:"2-digit"});
   const gmapLink = gpsData ? "https://www.google.com/maps?q=" + gpsData.lat + "," + gpsData.lng : "";
   const sess = (() => { try { return JSON.parse(sessionStorage.getItem("atg_session") || "null"); } catch(e) { return null; } })();
 
