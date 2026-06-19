@@ -224,12 +224,13 @@ body{font-family:"Segoe UI",Tahoma,Arial,sans-serif;background:var(--atg-off);co
 <div class="vw active" id="view-home">
   <div class="rbar">
     <div class="rc"><strong id="rec-count">0</strong> <span id="t-records">گزارش ثبت‌شده</span></div>
-    <div style="display:flex;gap:7px;">
+    <div style="display:flex;gap:7px;flex-wrap:wrap;">
+      <button class="btn" style="background:#1a3a6e;color:#fff;font-weight:600" onclick="syncFromServer()" id="t-btn-sync">🔄 همگام‌سازی</button>
       <button class="btn bk" onclick="exportExcel()" id="t-btn-excel">📊 اکسل</button>
-      <button class="btn bp" onclick="exportGeoJSON()" id="t-btn-geo">📍 GeoJSON</button>
       <button class="btn bn" onclick="startNew()" id="t-btn-new">+ بازدید</button>
     </div>
   </div>
+  <div id="sync-status" style="font-size:12px;color:var(--atg-muted);padding:5px 16px;display:none;background:var(--atg-white);border-bottom:1px solid var(--atg-border)"></div>
   <div id="records-list">
     <div class="empty"><div class="ei">📋</div><span id="t-empty">هنوز بازدیدی ثبت نشده.</span></div>
   </div>
@@ -1204,6 +1205,66 @@ function delRec(i) {
 }
 
 // ── EXCEL ──
+async function syncFromServer() {
+  const st = document.getElementById("sync-status");
+  const btn = document.getElementById("t-btn-sync");
+  if (st) { st.style.display = "block"; st.textContent = "⏳ در حال دریافت از سرور..."; }
+  if (btn) btn.disabled = true;
+
+  try {
+    const res = await fetch("https://spvkshylftshggunpnoa.supabase.co/rest/v1/atg_visits?select=*&order=created_at.desc&limit=500", {
+      headers: {
+        "apikey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNwdmtzaHlsZnRzaGdndW5wbm9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5NjUwNjYsImV4cCI6MjA5NTU0MTA2Nn0.uRwk5kuXTej6HLQWSmqiQljyzCAL7K7qATz2lHEpZww",
+        "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNwdmtzaHlsZnRzaGdndW5wbm9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5NjUwNjYsImV4cCI6MjA5NTU0MTA2Nn0.uRwk5kuXTej6HLQWSmqiQljyzCAL7K7qATz2lHEpZww"
+      }
+    });
+
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const rows = await res.json();
+
+    if (!Array.isArray(rows) || !rows.length) {
+      if (st) st.textContent = "⚠️ هیچ داده‌ای در سرور یافت نشد.";
+      if (btn) btn.disabled = false;
+      return;
+    }
+
+    // تبدیل فرمت Supabase به فرمت local
+    records = rows.map(r => ({
+      id: r.id,
+      city: r.city || "",
+      date: r.date || "",
+      time: r.time || "",
+      company: r.company || "",
+      area: r.area || r.district || "",
+      type: r.type || "",
+      lat: r.lat || "",
+      lng: r.lng || "",
+      gmapLink: r.gmap_link || "",
+      ownerName: r.owner_name || "",
+      ownerPhone: r.owner_phone || "",
+      buyerName: r.buyer_name || "",
+      buyerPhone: r.buyer_phone || "",
+      volume: r.volume || "",
+      delivery: r.delivery || "",
+      marketScore: r.market_score || 0,
+      readiness: r.readiness || 0,
+      nextStep: r.next_step || "",
+      notes: r.notes || "",
+      agent: r.agent || "",
+      lang: r.record_lang || "fa"
+    }));
+
+    try { localStorage.setItem("atg_rec2", JSON.stringify(records)); } catch(e) {}
+    renderList();
+    if (st) st.textContent = "✅ " + records.length + " گزارش از سرور دریافت شد";
+    setTimeout(() => { if (st) st.style.display = "none"; }, 3000);
+
+  } catch(e) {
+    if (st) st.textContent = "❌ خطا: " + e.message;
+  }
+  if (btn) btn.disabled = false;
+}
+
 function exportExcel() {
   if (!records.length) { alert(lang === "en" ? "No records" : "لا توجد سجلات"); return; }
   const headers = ["ID","City","Date","Time","Company","Area","Type","Latitude","Longitude","Accuracy(m)","Google Maps Link","Photos",
