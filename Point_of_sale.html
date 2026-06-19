@@ -1082,7 +1082,7 @@ function saveRecord() {
     lng: gpsData ? gpsData.lng : "",
     acc: gpsData ? String(gpsData.acc) : "",
     gmap_link: gmapLink,
-    photos: photoDataURLs.length,
+    photos: photos.length,
     owner_name: v("f-owner-name"),
     owner_phone: v("f-owner-phone"),
     buyer_name: v("f-buyer-name"),
@@ -1139,7 +1139,7 @@ function saveRecord() {
     }
   }).catch(e => console.warn("Network error:", e));
 
-  document.getElementById("success-msg").textContent = rec.company + " · " + rec.city;
+  const _sm = document.getElementById("suc-msg"); if(_sm) _sm.textContent = rec.company + " · " + rec.city;
   showView("success");
 }
 
